@@ -8,12 +8,13 @@ describe('EventDispatcherLocal', () => {
 
   beforeEach(() => {
     logger = {
-      debug: (...args) => console.log(args),
-      warn: (...args) => console.log(args)
+      trace: (...args) => {},
+      debug: (...args) => {},
+      info: (...args) => {},
+      warn: (...args) => console.log(args),
+      error: (...args) => console.log(args)
     }
 
-    // no-inspect
-    // noinspection JSCheckFunctionSignatures
     subjectUnderTest = new EventDispatcherLocal(logger)
   })
 

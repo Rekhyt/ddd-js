@@ -24,3 +24,11 @@ declare interface Command {
 declare interface CommandHandler {
     handle(command: Command): Event[]
 }
+
+declare interface Logger {
+    trace(...args)
+    debug(...args)
+    info(...args)
+    warn(...args)
+    error(...args)
+}
