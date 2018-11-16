@@ -7,7 +7,7 @@ describe('EventDispatcherLocal', () => {
   let logger
 
   beforeEach(() => {
-    logger.prototype = {
+    logger = {
       trace: (...args) => {},
       debug: (...args) => {},
       info: (...args) => {},
