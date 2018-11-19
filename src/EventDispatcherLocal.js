@@ -40,6 +40,7 @@ class EventDispatcherLocal {
 
   /**
    * @param {Event} event
+   * @return {Promise<void>}
    */
   async dispatch (event) {
     if (!this.subscriptions[event.name]) {
