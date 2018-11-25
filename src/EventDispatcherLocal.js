@@ -49,7 +49,7 @@ class EventDispatcherLocal {
     }
 
     await Promise.all(
-      (await Promise.all(this.subscriptions[event.name].map(async handler => handler.handle(event))))
+      (await Promise.all(this.subscriptions[event.name].map(async handler => handler.apply(event))))
         .map(async resultingEvents => this.publishMany(resultingEvents))
     )
   }

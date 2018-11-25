@@ -24,11 +24,11 @@ describe('EventDispatcherLocal', () => {
       let handler2CallCounter = 0
 
       const handler1 = {
-        handle: async () => { handler1CallCounter++; return [] }
+        apply: async () => { handler1CallCounter++; return [] }
       }
 
       const handler2 = {
-        handle: async () => { handler2CallCounter++; return [] }
+        apply: async () => { handler2CallCounter++; return [] }
       }
 
       subjectUnderTest.subscribe('event1', handler1)
@@ -45,15 +45,15 @@ describe('EventDispatcherLocal', () => {
       let handler3CallCounter = 0
 
       const handler1 = {
-        handle: async () => { handler1CallCounter++; return [{ name: 'event2' }, { name: 'event3' }] }
+        apply: async () => { handler1CallCounter++; return [{ name: 'event2' }, { name: 'event3' }] }
       }
 
       const handler2 = {
-        handle: async () => { handler2CallCounter++; return [{ name: 'event3' }] }
+        apply: async () => { handler2CallCounter++; return [{ name: 'event3' }] }
       }
 
       const handler3 = {
-        handle: async () => { handler3CallCounter++; return [] }
+        apply: async () => { handler3CallCounter++; return [] }
       }
 
       subjectUnderTest.subscribe('event1', handler1)

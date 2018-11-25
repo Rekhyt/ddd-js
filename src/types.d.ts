@@ -5,7 +5,7 @@ declare interface Event {
 }
 
 declare interface EventHandler {
-    handle(event: Event): Event[]
+    apply(event: Event): Event[]
 }
 
 declare interface EventDispatcher {
