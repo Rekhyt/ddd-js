@@ -44,7 +44,7 @@ class EventDispatcherLocal {
    */
   async dispatch (event) {
     if (!this.subscriptions[event.name]) {
-      this.logger.warn(`No handlers for incoming event: ${event.name || 'no name given'}`, event)
+      this.logger.warn(`No handlers for incoming event: ${event.name || 'no name given'}`)
       return
     }
 

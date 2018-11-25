@@ -28,7 +28,7 @@ class CommandDispatcherLocal {
    */
   dispatch (command) {
     if (!this.subscriptions[command.name]) {
-      this.logger.warn(`No handler for incoming command: ${command.name || 'no name given'}`, command)
+      this.logger.warn(`No handler for incoming command: ${command.name || 'no name given'}`)
       return
     }
 
