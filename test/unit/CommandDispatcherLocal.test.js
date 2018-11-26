@@ -19,10 +19,10 @@ describe('CommandDispatcherLocal', () => {
   })
 
   describe('subscribe', () => {
-    it('should log a warning if two handlers are assigned to a command', () => {
+    it('should log an error if two handlers are assigned to a command', () => {
       let loggerCallCount = 0
 
-      logger.warn = () => { loggerCallCount++ }
+      logger.error = () => { loggerCallCount++ }
 
       subjectUnderTest.subscribe('command1', {})
       subjectUnderTest.subscribe('command1', {})
@@ -49,7 +49,7 @@ describe('CommandDispatcherLocal', () => {
       let handler1CallCount = 0
       let handler2CallCount = 0
 
-      logger.warn = () => { /* do not log to console, it's expected */ }
+      logger.error = () => { /* do not log to console, it's expected */ }
 
       const handler1 = {
         handle: () => { handler1CallCount++; return [] }
@@ -68,10 +68,10 @@ describe('CommandDispatcherLocal', () => {
       assert.strictEqual(handler2CallCount, 0)
     })
 
-    it('should log a warning if no handler is subscribed for an incoming command', () => {
+    it('should log an error if no handler is subscribed for an incoming command', () => {
       let loggerCallCount = 0
 
-      logger.warn = () => { loggerCallCount++ }
+      logger.error = () => { loggerCallCount++ }
 
       subjectUnderTest.dispatch({ name: 'command' })
 

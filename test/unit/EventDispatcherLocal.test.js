@@ -66,10 +66,10 @@ describe('EventDispatcherLocal', () => {
       assert.strictEqual(handler3CallCounter, 2)
     })
 
-    it('should log a warning if no handler is subscribed for an incoming event', async () => {
+    it('should log an error if no handler is subscribed for an incoming event', async () => {
       let loggerCallCount = 0
 
-      logger.warn = () => { loggerCallCount++ }
+      logger.error = () => { loggerCallCount++ }
 
       await subjectUnderTest.dispatch({ name: 'event' })
 
