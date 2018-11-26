@@ -16,7 +16,9 @@ class CommandDispatcherLocal {
    */
   subscribe (name, handler) {
     if (this.subscriptions[name]) {
-      this.logger.warn(`Handler subscribed to command "${name}" that already has a handler. Keeping former assignment.`)
+      this.logger.error(
+        new Error(`Handler subscribed to command "${name}" that already has a handler. Keeping former assignment.`)
+      )
       return
     }
 
@@ -28,7 +30,7 @@ class CommandDispatcherLocal {
    */
   dispatch (command) {
     if (!this.subscriptions[command.name]) {
-      this.logger.warn(`No handler for incoming command: ${command.name || 'no name given'}`)
+      this.logger.error(new Error(`No handler for incoming command: ${command.name || 'no name given'}`))
       return
     }
 
