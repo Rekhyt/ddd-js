@@ -3,9 +3,11 @@
  */
 class CommandDispatcherLocal {
   /**
+   * @param {EventDispatcher} eventDispatcher
    * @param {Logger} logger
    */
-  constructor (logger) {
+  constructor (eventDispatcher, logger) {
+    this.eventDispatcher = eventDispatcher
     this.logger = logger
     this.subscriptions = {}
   }
@@ -28,13 +30,13 @@ class CommandDispatcherLocal {
   /**
    * @param {Command} command
    */
-  dispatch (command) {
+  async dispatch (command) {
     if (!this.subscriptions[command.name]) {
       this.logger.error(new Error(`No handler for incoming command: ${command.name || 'no name given'}`))
       return
     }
 
-    return this.subscriptions[command.name].handle(command)
+    await this.eventDispatcher.publishMany(this.subscriptions[command.name].handle(command))
   }
 }
 

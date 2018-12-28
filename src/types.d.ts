@@ -1,7 +1,7 @@
 declare interface Event {
     name: string
     time: string
-    payload
+    payload: Object
 }
 
 declare interface EventHandler {
@@ -18,7 +18,7 @@ declare interface EventDispatcher {
 declare interface Command {
     name: string
     time: string
-    payload
+    payload: Object
 }
 
 declare interface CommandHandler {
@@ -27,7 +27,7 @@ declare interface CommandHandler {
 
 declare interface CommandDispatcher {
     subscribe(name: string, handler: CommandHandler): void
-    dispatch(command: Command): Event[]
+    dispatch(command: Command): Promise<void>
 }
 
 declare interface Logger {
