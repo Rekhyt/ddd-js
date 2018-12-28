@@ -37,3 +37,11 @@ declare interface Logger {
     warn(...args)
     error(...args)
 }
+
+declare interface Server {
+    on(serverEventName: string, cb: Function): void
+}
+
+declare interface Socket {
+    on(socketEventName: string, cb: Function): void
+}
