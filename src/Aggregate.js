@@ -5,9 +5,13 @@
 class Aggregate {
   /**
    * @param {Logger} logger
+   * @param {CommandDispatcher} commandDispatcher
+   * @param {EventDispatcher} eventDispatcher
    */
-  constructor (logger) {
+  constructor (logger, commandDispatcher, eventDispatcher) {
     this.logger = logger
+    this.commandDispatcher = commandDispatcher
+    this.eventDispatcher = eventDispatcher
     this.commandHandlerFunctions = {}
     this.eventHandlerFunctions = {}
   }
@@ -25,6 +29,13 @@ class Aggregate {
     }
 
     this.commandHandlerFunctions[name] = func
+    this.commandDispatcher.subscribe(name, this)
+
+    this.logger.info({
+      name,
+      aggregateClass: this.constructor.name,
+      functionName: func.name
+    }, 'Registered handler function for a command.')
   }
 
   /**
@@ -33,13 +44,18 @@ class Aggregate {
    */
   registerEvent (name, func) {
     if (this.eventHandlerFunctions[name]) {
-      this.logger.error(
-        new Error(`Two functions registered as event handler for ${name}. Keeping the former.`)
-      )
+      this.logger.error(new Error(`Two functions registered as event handler for ${name}. Keeping the former.`))
       return
     }
 
     this.eventHandlerFunctions[name] = func
+    this.eventDispatcher.subscribe(name, this)
+
+    this.logger.info({
+      name,
+      aggregateClass: this.constructor.name,
+      functionName: func.name
+    }, 'Registered handler function for an event.')
   }
 
   /**
@@ -52,6 +68,15 @@ class Aggregate {
       return []
     }
 
+    this.logger.debug(
+      {
+        name: command.name,
+        time: command.time,
+        payload: JSON.stringify(command.payload, null, 2),
+        aggregateClass: this.constructor.name
+      },
+      'Going to handle a command.'
+    )
     return this.commandHandlerFunctions[command.name](command)
   }
 
@@ -65,7 +90,24 @@ class Aggregate {
       return []
     }
 
+    this.logger.debug(
+      {
+        name: event.name,
+        time: event.time,
+        payload: JSON.stringify(event.payload, null, 2),
+        aggregateClass: this.constructor.prototype
+      },
+      'Going to apply an event.'
+    )
     return this.eventHandlerFunctions[event.name](event)
+  }
+
+  createEvent (name, payload = {}) {
+    return {
+      name,
+      time: new Date().toISOString(),
+      payload
+    }
   }
 }
 
