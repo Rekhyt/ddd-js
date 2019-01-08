@@ -1,7 +1,8 @@
 {
   "name": "ddd-js",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0-alpha.7",
   "description": "Basic / boilerplate JS classes & functions.",
+  "main": "./index.js",
   "scripts": {
     "test": "mocha test/unit --recursive"
   },
