@@ -2,7 +2,7 @@
  * @implements CommandHandler
  * @implements EventHandler
  */
-class Aggregate {
+class Entity {
   /**
    * @param {Logger} logger
    * @param {CommandDispatcher} commandDispatcher
@@ -111,4 +111,4 @@ class Aggregate {
   }
 }
 
-module.exports = Aggregate
+module.exports = Entity
