@@ -25,6 +25,14 @@ class Enum {
   getValue () {
     return this._value
   }
+
+  /**
+   * @param {Enum} enumValue
+   * @returns {boolean}
+   */
+  equals (enumValue) {
+    return enumValue instanceof Enum && this._value === enumValue.getValue()
+  }
 }
 
 module.exports = Enum

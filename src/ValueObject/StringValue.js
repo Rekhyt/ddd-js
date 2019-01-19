@@ -24,6 +24,14 @@ class StringValue {
   getValue () {
     return this._value
   }
+
+  /**
+   * @param {StringValue} stringValue
+   * @return {boolean}
+   */
+  equals (stringValue) {
+    return stringValue instanceof StringValue && this._value === stringValue.getValue()
+  }
 }
 
 module.exports = StringValue
