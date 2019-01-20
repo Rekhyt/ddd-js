@@ -55,6 +55,18 @@ class Entity {
     )
     return this.commandHandlerFunctions[command.name](command)
   }
+
+  /**
+   * @param {string} name
+   * @param {Object} payload
+   * @returns {Event}
+   */
+  createEvent (name, payload = {}) {
+    return {
+      name,
+      time: new Date().toISOString(),
+      payload
+    }
 }
 
 module.exports = Entity
