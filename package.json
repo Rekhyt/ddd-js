@@ -25,5 +25,8 @@
     "eslint-plugin-standard": "^4.0.0",
     "eslint-standard": "^1.0.2",
     "mocha": "^5.2.0"
+  },
+  "dependencies": {
+    "email-validator": "^2.0.4"
   }
 }
