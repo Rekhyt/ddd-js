@@ -67,6 +67,7 @@ class Entity {
       time: new Date().toISOString(),
       payload
     }
+  }
 }
 
 module.exports = Entity
