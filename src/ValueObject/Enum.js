@@ -27,11 +27,11 @@ class Enum {
   }
 
   /**
-   * @param {Enum} enumValue
+   * @param {Enum} value
    * @returns {boolean}
    */
-  equals (enumValue) {
-    return enumValue instanceof Enum && this._value === enumValue.getValue()
+  equals (value) {
+    return this._value === value.getValue()
   }
 
   /**
