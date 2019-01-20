@@ -102,6 +102,11 @@ class Entity {
     return this.eventHandlerFunctions[event.name](event)
   }
 
+  /**
+   * @param {string} name
+   * @param {Object} payload
+   * @returns {Event}
+   */
   createEvent (name, payload = {}) {
     return {
       name,

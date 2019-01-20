@@ -27,10 +27,17 @@ class StringValue {
 
   /**
    * @param {StringValue} stringValue
-   * @return {boolean}
+   * @returns {boolean}
    */
   equals (stringValue) {
     return stringValue instanceof StringValue && this._value === stringValue.getValue()
+  }
+
+  /**
+   * @returns {string}
+   */
+  toString () {
+    return this._value
   }
 }
 

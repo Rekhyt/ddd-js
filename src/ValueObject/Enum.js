@@ -13,7 +13,7 @@ class Enum {
   }
 
   /**
-   * @return {string[]}
+   * @returns {string[]}
    */
   getEnumValues () {
     throw new InvalidArgumentError('Enums must implement their own getEnumValues() method.')
@@ -32,6 +32,13 @@ class Enum {
    */
   equals (enumValue) {
     return enumValue instanceof Enum && this._value === enumValue.getValue()
+  }
+
+  /**
+   * @returns {string}
+   */
+  toString () {
+    return this._value
   }
 }
 
