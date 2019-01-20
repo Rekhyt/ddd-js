@@ -66,5 +66,6 @@ class ReadModel {
       payload
     }
   }
-
 }
+
+module.exports = ReadModel

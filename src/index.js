@@ -9,8 +9,8 @@ const StringValue = require('./ValueObject/StringValue')
 const Enum = require('./ValueObject/Enum')
 
 module.exports = {
-  ReadModel,
   Entity,
+  ReadModel,
   CommandDispatcherLocal,
   ConnectionHandlerSocketIo,
   EventDispatcherLocal,
