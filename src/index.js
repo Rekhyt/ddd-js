@@ -1,8 +1,8 @@
 const Entity = require('./Entity')
 const ReadModel = require('./ReadModel')
 const CommandDispatcherLocal = require('./CommandDispatcherLocal')
-const ConnectionHandlerSocketIo = require('./ConnectionHandlerSocketIo')
 const EventDispatcherLocal = require('./EventDispatcherLocal')
+const EventDispatcherEventEmitter = require('./EventDispatcherEventEmitter')
 const InvalidTypeError = require('./ValueObject/Error/InvalidTypeError')
 const InvalidArgumentError = require('./ValueObject/Error/InvalidArgumentError')
 const StringValue = require('./ValueObject/StringValue')
@@ -12,8 +12,8 @@ module.exports = {
   Entity,
   ReadModel,
   CommandDispatcherLocal,
-  ConnectionHandlerSocketIo,
   EventDispatcherLocal,
+  EventDispatcherEventEmitter,
   InvalidTypeError,
   InvalidArgumentError,
   StringValue,
