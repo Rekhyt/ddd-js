@@ -7,9 +7,9 @@ class CommandDispatcherLocal {
    * @param {Logger} logger
    */
   constructor (eventDispatcher, logger) {
-    this.eventDispatcher = eventDispatcher
-    this.logger = logger
-    this.subscriptions = {}
+    this._eventDispatcher = eventDispatcher
+    this._logger = logger
+    this._subscriptions = {}
   }
 
   /**
@@ -17,26 +17,26 @@ class CommandDispatcherLocal {
    * @param {CommandHandler} handler
    */
   subscribe (name, handler) {
-    if (this.subscriptions[name]) {
-      this.logger.error(
+    if (this._subscriptions[name]) {
+      this._logger.error(
         new Error(`Handler subscribed to command "${name}" that already has a handler. Keeping former assignment.`)
       )
       return
     }
 
-    this.subscriptions[name] = handler
+    this._subscriptions[name] = handler
   }
 
   /**
    * @param {Command} command
    */
   async dispatch (command) {
-    if (!this.subscriptions[command.name]) {
-      this.logger.error(new Error(`No handler for incoming command: ${command.name || 'no name given'}`))
+    if (!this._subscriptions[command.name]) {
+      this._logger.error(new Error(`No handler for incoming command: ${command.name || 'no name given'}`))
       return
     }
 
-    await this.eventDispatcher.publishMany(this.subscriptions[command.name].handle(command))
+    await this._eventDispatcher.publishMany(this._subscriptions[command.name].handle(command))
   }
 }
 

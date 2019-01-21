@@ -6,8 +6,8 @@ class EventDispatcherLocal {
    * @param {Logger} logger
    */
   constructor (logger) {
-    this.logger = logger
-    this.subscriptions = {}
+    this._logger = logger
+    this._subscriptions = {}
   }
 
   /**
@@ -15,9 +15,9 @@ class EventDispatcherLocal {
    * @param {EventHandler} handler
    */
   subscribe (name, handler) {
-    if (!this.subscriptions[name]) this.subscriptions[name] = []
+    if (!this._subscriptions[name]) this._subscriptions[name] = []
 
-    this.subscriptions[name].push(handler)
+    this._subscriptions[name].push(handler)
   }
 
   /**
@@ -34,7 +34,7 @@ class EventDispatcherLocal {
    * @returns {Promise<void>}
    */
   async publishMany (events) {
-    if (events) this.logger.debug('Incoming events', events)
+    if (events) this._logger.debug('Incoming events', events)
     await Promise.all(events.map(async event => this.publish(event)))
   }
 
@@ -43,13 +43,13 @@ class EventDispatcherLocal {
    * @return {Promise<void>}
    */
   async dispatch (event) {
-    if (!this.subscriptions[event.name]) {
-      this.logger.error(new Error(`No handlers for incoming event: ${event.name || 'no name given'}`))
+    if (!this._subscriptions[event.name]) {
+      this._logger.error(new Error(`No handlers for incoming event: ${event.name || 'no name given'}`))
       return
     }
 
     await Promise.all(
-      (await Promise.all(this.subscriptions[event.name].map(async handler => handler.apply(event))))
+      (await Promise.all(this._subscriptions[event.name].map(async handler => handler.apply(event))))
         .map(async resultingEvents => this.publishMany(resultingEvents))
     )
   }

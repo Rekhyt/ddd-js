@@ -8,8 +8,8 @@ class ReadModel {
    */
   constructor (logger, eventDispatcher) {
     this.logger = logger
-    this.eventDispatcher = eventDispatcher
-    this.eventHandlerFunctions = {}
+    this._eventDispatcher = eventDispatcher
+    this._eventHandlerFunctions = {}
   }
 
   /**
@@ -17,13 +17,13 @@ class ReadModel {
    * @param {Function} func
    */
   registerEvent (name, func) {
-    if (this.eventHandlerFunctions[name]) {
+    if (this._eventHandlerFunctions[name]) {
       this.logger.error(new Error(`Two functions registered as event handler for ${name}. Keeping the former.`))
       return
     }
 
-    this.eventHandlerFunctions[name] = func
-    this.eventDispatcher.subscribe(name, this)
+    this._eventHandlerFunctions[name] = func
+    this._eventDispatcher.subscribe(name, this)
 
     this.logger.info({
       name,
@@ -37,7 +37,7 @@ class ReadModel {
    * @returns {Event[]}
    */
   apply (event) {
-    if (!this.eventHandlerFunctions[event.name]) {
+    if (!this._eventHandlerFunctions[event.name]) {
       this.logger.error(new Error(`Cannot apply incoming event ${event.name || 'no name given'}.`))
       return []
     }
@@ -51,7 +51,7 @@ class ReadModel {
       },
       'Going to apply an event.'
     )
-    return this.eventHandlerFunctions[event.name](event)
+    return this._eventHandlerFunctions[event.name](event)
   }
 
   /**

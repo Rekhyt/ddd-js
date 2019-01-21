@@ -8,8 +8,8 @@ class Entity {
    */
   constructor (logger, commandDispatcher) {
     this.logger = logger
-    this.commandDispatcher = commandDispatcher
-    this.commandHandlerFunctions = {}
+    this._commandDispatcher = commandDispatcher
+    this._commandHandlerFunctions = {}
   }
 
   /**
@@ -17,15 +17,15 @@ class Entity {
    * @param {Function} func
    */
   registerCommand (name, func) {
-    if (this.commandHandlerFunctions[name]) {
+    if (this._commandHandlerFunctions[name]) {
       this.logger.error(
         new Error(`Two functions registered as command handler for ${name}. Keeping the former.`)
       )
       return
     }
 
-    this.commandHandlerFunctions[name] = func
-    this.commandDispatcher.subscribe(name, this)
+    this._commandHandlerFunctions[name] = func
+    this._commandDispatcher.subscribe(name, this)
 
     this.logger.info({
       name,
@@ -39,7 +39,7 @@ class Entity {
    * @returns {Event[]}
    */
   handle (command) {
-    if (!this.commandHandlerFunctions[command.name]) {
+    if (!this._commandHandlerFunctions[command.name]) {
       this.logger.error(new Error(`Cannot handle incoming command ${command.name || 'no name given'}.`))
       return []
     }
@@ -53,7 +53,7 @@ class Entity {
       },
       'Going to handle a command.'
     )
-    return this.commandHandlerFunctions[command.name](command)
+    return this._commandHandlerFunctions[command.name](command)
   }
 
   /**
