@@ -1,5 +1,6 @@
 /**
  * @implements CommandHandler
+ * @abstract
  */
 class Entity {
   /**
