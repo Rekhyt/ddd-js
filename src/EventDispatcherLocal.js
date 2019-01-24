@@ -4,9 +4,11 @@
 class EventDispatcherLocal {
   /**
    * @param {Logger} logger
+   * @param {EventRepository} repository
    */
-  constructor (logger) {
+  constructor (logger, repository) {
     this._logger = logger
+    this._repository = repository
     this._subscriptions = {}
   }
 
@@ -25,6 +27,8 @@ class EventDispatcherLocal {
    * @returns {Promise<void>}
    */
   async publish (event) {
+    await this._repository.save(event)
+
     if (!this._subscriptions[event.name]) {
       this._logger.error(new Error(`No handlers for incoming event: ${event.name || 'no name given'}`))
       return

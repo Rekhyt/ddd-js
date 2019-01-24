@@ -6,12 +6,14 @@ const EventEmitter = require('events')
 class EventDispatcherEventEmitter extends EventEmitter {
   /**
    * @param {Logger} logger
+   * @param {EventRepository} repository
    * @param {string} eventPrefix
    */
-  constructor (logger, eventPrefix = 'Rekhyt/ddd-base') {
+  constructor (logger, repository, eventPrefix = 'Rekhyt/ddd-base') {
     super()
 
     this._logger = logger
+    this._repository = repository
     this._eventPrefix = eventPrefix
   }
 
@@ -28,8 +30,11 @@ class EventDispatcherEventEmitter extends EventEmitter {
    * @returns {Promise<void>}
    */
   async publish (event) {
-    // the local dispatcher just forwards internally
-    this.emit(`${this._eventPrefix}/event`, event)
+    await this._repository.save(event)
+
+    if (!this.emit(`${this._eventPrefix}/event`, event)) {
+      this._logger.error(new Error(`No handlers for incoming event: ${event.name || 'no name given'}`))
+    }
   }
 
   /**

@@ -3,6 +3,7 @@ const ReadModel = require('./ReadModel')
 const CommandDispatcherLocal = require('./CommandDispatcherLocal')
 const EventDispatcherLocal = require('./EventDispatcherLocal')
 const EventDispatcherEventEmitter = require('./EventDispatcherEventEmitter')
+const EventRepositoryJsonFile = require('./EventRepositoryJsonFile')
 const InvalidTypeError = require('./ValueObject/Error/InvalidTypeError')
 const InvalidArgumentError = require('./ValueObject/Error/InvalidArgumentError')
 const StringValue = require('./ValueObject/StringValue')
@@ -14,6 +15,7 @@ module.exports = {
   CommandDispatcherLocal,
   EventDispatcherLocal,
   EventDispatcherEventEmitter,
+  EventRepositoryJsonFile,
   InvalidTypeError,
   InvalidArgumentError,
   StringValue,

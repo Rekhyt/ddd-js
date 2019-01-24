@@ -37,10 +37,8 @@ declare interface Logger {
     error(...args)
 }
 
-declare interface Server {
-    on(serverEventName: string, cb: Function): void
-}
-
-declare interface Socket {
-    on(socketEventName: string, cb: Function): void
+declare interface EventRepository {
+    save(event: Event): Promise<string>
+    get(eventId: string): Promise<Event>
+    getDateRange(from: string, to: string|undefined): Promise<Event[]>
 }
