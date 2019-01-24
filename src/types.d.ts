@@ -5,7 +5,7 @@ declare interface Event {
 }
 
 declare interface EventHandler {
-    apply(event: Event): Event[]
+    apply(event: Event): Promise<void>
 }
 
 declare interface EventDispatcher {

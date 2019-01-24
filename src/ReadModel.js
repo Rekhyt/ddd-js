@@ -35,9 +35,8 @@ class ReadModel {
 
   /**
    * @param {Event} event
-   * @returns {Event[]}
    */
-  apply (event) {
+  async apply (event) {
     if (!this._eventHandlerFunctions[event.name]) {
       this.logger.error(new Error(`Cannot apply incoming event ${event.name || 'no name given'}.`))
       return []
@@ -52,7 +51,7 @@ class ReadModel {
       },
       'Going to apply an event.'
     )
-    return this._eventHandlerFunctions[event.name](event)
+    await this._eventHandlerFunctions[event.name](event)
   }
 
   /**
