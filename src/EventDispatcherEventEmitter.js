@@ -13,7 +13,6 @@ class EventDispatcherEventEmitter extends EventEmitter {
 
     this._logger = logger
     this._eventPrefix = eventPrefix
-    this._subscriptions = {}
   }
 
   /**
@@ -21,7 +20,6 @@ class EventDispatcherEventEmitter extends EventEmitter {
    * @param {EventHandler} handler
    */
   subscribe (name, handler) {
-    this._subscriptions[name] = true
     this.on(`${this._eventPrefix}/event`, event => handler.apply(event))
   }
 
@@ -41,15 +39,7 @@ class EventDispatcherEventEmitter extends EventEmitter {
   async publishMany (events) {
     if (events) this._logger.debug('Incoming events', events)
 
-    events.forEach(event => this.publish(event))
-  }
-
-  /**
-   * @param {Event} event
-   * @return {Promise<void>}
-   */
-  async dispatch (event) {
-    // unimplemented, since dispatching is done via nodeJS EventEmitter
+    await Promise.all(events.map(async event => this.publish(event)))
   }
 }
 
