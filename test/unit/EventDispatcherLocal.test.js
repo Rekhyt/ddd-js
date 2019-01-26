@@ -1,4 +1,6 @@
 const assert = require('assert')
+const chai = require('chai')
+chai.should()
 
 const EventDispatcherLocal = require('../../src/EventDispatcherLocal')
 
@@ -83,6 +85,104 @@ describe('EventDispatcherLocal', () => {
       await subjectUnderTest.publish(expectedEvent, false)
 
       assert.strictEqual(saveCallCount, 0)
+    })
+  })
+
+  describe('publishMany', () => {
+    it('should publish all events passed to it', async () => {
+      const publishedEvents = [{ name: 'event1' }, { name: 'event2' }, { name: 'event3' }]
+
+      const handledEvents = []
+
+      eventRepository.save = async () => {}
+
+      subjectUnderTest.subscribe('event1', { apply: event => handledEvents.push(event) })
+      subjectUnderTest.subscribe('event2', { apply: event => handledEvents.push(event) })
+      subjectUnderTest.subscribe('event3', { apply: event => handledEvents.push(event) })
+
+      await subjectUnderTest.publishMany(publishedEvents)
+
+      handledEvents.should.be.an('array').and.include.members(publishedEvents)
+      publishedEvents.should.be.an('array').and.includes.members(handledEvents)
+    })
+
+    it('should save all events passed to it when the "save" flag is true', async () => {
+      const publishedEvents = [{ name: 'event1' }, { name: 'event2' }, { name: 'event3' }]
+
+      let saveCallCount = 0
+      const handledEvents = []
+      const savedEvents = []
+
+      eventRepository.save = async event => {
+        savedEvents.push(event)
+        saveCallCount++
+      }
+
+      subjectUnderTest.subscribe('event1', { apply: event => handledEvents.push(event) })
+      subjectUnderTest.subscribe('event2', { apply: event => handledEvents.push(event) })
+      subjectUnderTest.subscribe('event3', { apply: event => handledEvents.push(event) })
+
+      await subjectUnderTest.publishMany(publishedEvents)
+
+      savedEvents.should.be.an('array').and.includes.members(publishedEvents)
+      publishedEvents.should.be.an('array').and.includes.members(savedEvents)
+      saveCallCount.should.equal(3)
+
+      handledEvents.should.be.an('array').and.includes.members(publishedEvents)
+      publishedEvents.should.be.an('array').and.includes.members(handledEvents)
+    })
+
+    it('should not save any of the events passed to it when the "save" flag is false', async () => {
+      const publishedEvents = [{ name: 'event1' }, { name: 'event2' }, { name: 'event3' }]
+
+      let saveCallCount = 0
+      const handledEvents = []
+      const savedEvents = []
+
+      eventRepository.save = async event => {
+        savedEvents.push(event)
+        saveCallCount++
+      }
+
+      subjectUnderTest.subscribe('event1', { apply: event => handledEvents.push(event) })
+      subjectUnderTest.subscribe('event2', { apply: event => handledEvents.push(event) })
+      subjectUnderTest.subscribe('event3', { apply: event => handledEvents.push(event) })
+
+      await subjectUnderTest.publishMany(publishedEvents, false)
+
+      assert.deepStrictEqual(savedEvents, [])
+      saveCallCount.should.equal(0)
+
+      handledEvents.should.be.an('array').and.includes.members(publishedEvents)
+      publishedEvents.should.be.an('array').and.includes.members(handledEvents)
+    })
+  })
+
+  describe('replayAll', () => {
+    it('should publish all events in the exact same order returned from repository and not save them again', async () => {
+      const eventsFromStorage = [{ name: 'event1' }, { name: 'event2' }, { name: 'event3' }]
+
+      let saveCallCount = 0
+      const handledEvents = []
+      const savedEvents = []
+
+      eventRepository.getAll = async () => eventsFromStorage
+
+      eventRepository.save = async event => {
+        savedEvents.push(event)
+        saveCallCount++
+      }
+
+      subjectUnderTest.subscribe('event1', { apply: event => handledEvents.push(event) })
+      subjectUnderTest.subscribe('event2', { apply: event => handledEvents.push(event) })
+      subjectUnderTest.subscribe('event3', { apply: event => handledEvents.push(event) })
+
+      await subjectUnderTest.replayAll()
+
+      assert.deepStrictEqual(savedEvents, [])
+      saveCallCount.should.equal(0)
+
+      assert.deepStrictEqual(handledEvents, eventsFromStorage)
     })
   })
 })
