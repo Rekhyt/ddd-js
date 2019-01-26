@@ -12,9 +12,14 @@ class EventRepositoryJsonFile {
 
     this._path = path
     this._content = fileContents ? JSON.parse(fileContents) : { events: [] }
+    this._interval = setInterval(() => this._saveFile(), 5000)
 
-    process.on('SIGINT', () => this._saveFile())
-    setInterval(() => this._saveFile(), 5000)
+    process.on('SIGINT', () => {
+      clearInterval(this._interval)
+      this._saveFile()
+
+      process.exit(0)
+    })
   }
 
   async save (event) {
