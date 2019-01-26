@@ -53,5 +53,19 @@ describe('EventDispatcherLocal', () => {
 
       assert.strictEqual(loggerCallCount, 1)
     })
+
+    it('should save the event to its event repository', async () => {
+      let saveCallCount = 0
+      let expectedEvent = { name: 'event', time: new Date().toISOString(), payload: { p1: 'test', p2: 'lol' } }
+
+      eventRepository.save = async event => {
+        assert.deepStrictEqual(event, expectedEvent)
+        saveCallCount++
+      }
+
+      await subjectUnderTest.publish(expectedEvent)
+
+      assert.strictEqual(saveCallCount, 1)
+    })
   })
 })
