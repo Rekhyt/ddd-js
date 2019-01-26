@@ -35,7 +35,7 @@ class Entity {
     this.logger.info({
       commandName: name,
       entity: this.constructor.name,
-      functionName: func.name
+      functionName: func.toString()
     }, 'Registered handler function for a command.')
   }
 
@@ -55,7 +55,7 @@ class Entity {
     this.logger.info({
       eventName: name,
       entity: this.constructor.name,
-      functionName: func.name
+      functionName: func.toString()
     }, 'Registered handler function for an event.')
   }
 
