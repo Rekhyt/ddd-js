@@ -48,6 +48,20 @@ class EventDispatcherEventEmitter extends EventEmitter {
 
     await Promise.all(events.map(async event => this.publish(event, save)))
   }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async replayAll () {
+    // using synchronized for-each for the replay, because order must be the exact same as happened before
+    for (const event of await this._repository.getAll()) {
+      this._logger.info({
+        eventName: event.name,
+        eventTime: event.time
+      }, 'Replaying event')
+      await this.publish(event, false)
+    }
+  }
 }
 
 module.exports = EventDispatcherEventEmitter

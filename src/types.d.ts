@@ -12,6 +12,7 @@ declare interface EventDispatcher {
     subscribe(name: string, handler: EventHandler): void
     publish(event: Event, save): Promise<void>
     publishMany(events: Event[], save): Promise<void>
+    replayAll(): Promise<void>
 }
 
 declare interface Command {
