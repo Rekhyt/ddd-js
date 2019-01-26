@@ -30,6 +30,10 @@ class EventRepositoryJsonFile {
     return this._content.events[eventId]
   }
 
+  async getAll () {
+    return Object.values(this._content.events)
+  }
+
   async getDateRange (from, to = undefined) {
     return []
   }

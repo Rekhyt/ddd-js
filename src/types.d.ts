@@ -40,5 +40,6 @@ declare interface Logger {
 declare interface EventRepository {
     save(event: Event): Promise<string>
     get(eventId: string): Promise<Event>
+    getAll (): Promise<Event[]>
     getDateRange(from: string, to: string|undefined): Promise<Event[]>
 }
