@@ -63,9 +63,26 @@ describe('EventDispatcherLocal', () => {
         saveCallCount++
       }
 
+      subjectUnderTest.subscribe('event', () => {})
+
       await subjectUnderTest.publish(expectedEvent)
 
       assert.strictEqual(saveCallCount, 1)
+    })
+
+    it('should not save the event when the "save" flag is false', async () => {
+      let saveCallCount = 0
+      let expectedEvent = { name: 'event', time: new Date().toISOString(), payload: { p1: 'test', p2: 'lol' } }
+
+      eventRepository.save = async () => {
+        saveCallCount++
+      }
+
+      subjectUnderTest.subscribe('event', () => {})
+
+      await subjectUnderTest.publish(expectedEvent, false)
+
+      assert.strictEqual(saveCallCount, 0)
     })
   })
 })
