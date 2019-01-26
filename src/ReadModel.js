@@ -27,9 +27,9 @@ class ReadModel {
     this._eventDispatcher.subscribe(name, this)
 
     this.logger.info({
-      name,
-      aggregateClass: this.constructor.name,
-      functionName: func.name
+      eventName: name,
+      readModel: this.constructor.name,
+      functionName: func.toString()
     }, 'Registered handler function for an event.')
   }
 
@@ -44,10 +44,10 @@ class ReadModel {
 
     this.logger.debug(
       {
-        name: event.name,
-        time: event.time,
-        payload: JSON.stringify(event.payload, null, 2),
-        aggregateClass: this.constructor.prototype
+        eventName: event.name,
+        eventTime: event.time,
+        eventPayload: JSON.stringify(event.payload, null, 2),
+        readModel: this.constructor.prototype
       },
       'Going to apply an event.'
     )

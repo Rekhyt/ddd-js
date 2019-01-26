@@ -33,8 +33,8 @@ class Entity {
     this._commandDispatcher.subscribe(name, this)
 
     this.logger.info({
-      name,
-      aggregateClass: this.constructor.name,
+      commandName: name,
+      entity: this.constructor.name,
       functionName: func.name
     }, 'Registered handler function for a command.')
   }
@@ -53,8 +53,8 @@ class Entity {
     this._eventDispatcher.subscribe(name, this)
 
     this.logger.info({
-      name,
-      aggregateClass: this.constructor.name,
+      eventName: name,
+      entity: this.constructor.name,
       functionName: func.name
     }, 'Registered handler function for an event.')
   }
@@ -71,10 +71,10 @@ class Entity {
 
     this.logger.debug(
       {
-        name: command.name,
-        time: command.time,
-        payload: JSON.stringify(command.payload, null, 2),
-        aggregateClass: this.constructor.name
+        commandName: command.name,
+        commandTime: command.time,
+        commandPayload: JSON.stringify(command.payload, null, 2),
+        entity: this.constructor.name
       },
       'Going to handle a command.'
     )
@@ -93,10 +93,10 @@ class Entity {
 
     this.logger.debug(
       {
-        name: event.name,
-        time: event.time,
-        payload: JSON.stringify(event.payload, null, 2),
-        aggregateClass: this.constructor.prototype
+        eventName: event.name,
+        eventTime: event.time,
+        eventPayload: JSON.stringify(event.payload, null, 2),
+        entity: this.constructor.prototype
       },
       'Going to apply an event.'
     )

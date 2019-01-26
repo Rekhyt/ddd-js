@@ -42,7 +42,7 @@ class EventDispatcherEventEmitter extends EventEmitter {
    * @returns {Promise<void>}
    */
   async publishMany (events) {
-    if (events) this._logger.debug('Incoming events', events)
+    if (events) this._logger.debug({ events: JSON.stringify(events) }, 'Incoming events')
 
     await Promise.all(events.map(async event => this.publish(event)))
   }
