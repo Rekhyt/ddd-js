@@ -1,16 +1,20 @@
 /**
  * @implements CommandHandler
+ * @implements EventHandler
  * @abstract
  */
 class Entity {
   /**
    * @param {Logger} logger
    * @param {CommandDispatcher} commandDispatcher
+   * @param {EventDispatcher} eventDispatcher
    */
-  constructor (logger, commandDispatcher) {
+  constructor (logger, commandDispatcher, eventDispatcher) {
     this.logger = logger
     this._commandDispatcher = commandDispatcher
     this._commandHandlerFunctions = {}
+    this._eventDispatcher = eventDispatcher
+    this._eventHandlerFunctions = {}
   }
 
   /**
@@ -36,6 +40,26 @@ class Entity {
   }
 
   /**
+   * @param {string} name
+   * @param {Function} func
+   */
+  registerEvent (name, func) {
+    if (this._eventHandlerFunctions[name]) {
+      this.logger.error(new Error(`Two functions registered as event handler for ${name}. Keeping the former.`))
+      return
+    }
+
+    this._eventHandlerFunctions[name] = func
+    this._eventDispatcher.subscribe(name, this)
+
+    this.logger.info({
+      name,
+      aggregateClass: this.constructor.name,
+      functionName: func.name
+    }, 'Registered handler function for an event.')
+  }
+
+  /**
    * @param {Command} command
    * @returns {Event[]}
    */
@@ -55,6 +79,28 @@ class Entity {
       'Going to handle a command.'
     )
     return this._commandHandlerFunctions[command.name](command)
+  }
+
+  /**
+   * @param {Event} event
+   * @returns {Event[]}
+   */
+  apply (event) {
+    if (!this._eventHandlerFunctions[event.name]) {
+      this.logger.error(new Error(`Cannot apply incoming event ${event.name || 'no name given'}.`))
+      return []
+    }
+
+    this.logger.debug(
+      {
+        name: event.name,
+        time: event.time,
+        payload: JSON.stringify(event.payload, null, 2),
+        aggregateClass: this.constructor.prototype
+      },
+      'Going to apply an event.'
+    )
+    return this._eventHandlerFunctions[event.name](event)
   }
 
   /**
