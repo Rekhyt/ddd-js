@@ -6,18 +6,25 @@ const EventDispatcherEventEmitter = require('./EventDispatcherEventEmitter')
 const EventRepositoryJsonFile = require('./EventRepositoryJsonFile')
 const InvalidTypeError = require('./ValueObject/Error/InvalidTypeError')
 const InvalidArgumentError = require('./ValueObject/Error/InvalidArgumentError')
+const EmailAddress = require('./ValueObject/EmailAddress')
 const StringValue = require('./ValueObject/StringValue')
 const Enum = require('./ValueObject/Enum')
 
 module.exports = {
   Entity,
   ReadModel,
+
   CommandDispatcherLocal,
+
   EventDispatcherLocal,
   EventDispatcherEventEmitter,
+
   EventRepositoryJsonFile,
+
   InvalidTypeError,
   InvalidArgumentError,
-  StringValue,
-  Enum
+
+  EmailAddress,
+  Enum,
+  StringValue
 }
