@@ -10,8 +10,8 @@ declare interface EventHandler {
 
 declare interface EventDispatcher {
     subscribe(name: string, handler: EventHandler): void
-    publish(event: Event): Promise<void>
-    publishMany(events: Event[]): Promise<void>
+    publish(event: Event, save): Promise<void>
+    publishMany(events: Event[], save): Promise<void>
 }
 
 declare interface Command {

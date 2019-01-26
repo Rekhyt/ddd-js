@@ -27,10 +27,11 @@ class EventDispatcherEventEmitter extends EventEmitter {
 
   /**
    * @param {Event} event
+   * @param {boolean} save
    * @returns {Promise<void>}
    */
-  async publish (event) {
-    await this._repository.save(event)
+  async publish (event, save = true) {
+    if (save) await this._repository.save(event)
 
     if (!this.emit(`${this._eventPrefix}/event`, event)) {
       this._logger.error(new Error(`No handlers for incoming event: ${event.name || 'no name given'}`))
@@ -39,12 +40,13 @@ class EventDispatcherEventEmitter extends EventEmitter {
 
   /**
    * @param {Event[]} events
+   * @param {boolean} save
    * @returns {Promise<void>}
    */
-  async publishMany (events) {
+  async publishMany (events, save) {
     if (events) this._logger.debug({ events: JSON.stringify(events) }, 'Incoming events')
 
-    await Promise.all(events.map(async event => this.publish(event)))
+    await Promise.all(events.map(async event => this.publish(event, save)))
   }
 }
 
