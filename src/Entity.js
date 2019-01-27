@@ -18,6 +18,20 @@ class Entity {
   }
 
   /**
+   * @returns {object} with event names as keys and handler functions as values
+   */
+  get eventHandlerFunctions () {
+    return this._eventHandlerFunctions
+  }
+
+  /**
+   * @returns {object} with event names as keys and handler functions as values
+   */
+  get commandHandlerFunctions () {
+    return this._commandHandlerFunctions
+  }
+
+  /**
    * @param {string} name
    * @param {Function} func
    */
