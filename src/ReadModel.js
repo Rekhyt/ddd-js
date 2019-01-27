@@ -45,6 +45,7 @@ class ReadModel {
    */
   async apply (event) {
     if (!this._eventHandlerFunctions[event.name]) {
+      /* istanbul ignore next */
       this.logger.error(new Error(`Cannot apply incoming event ${event.name || 'no name given'}.`))
       return
     }

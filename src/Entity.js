@@ -79,6 +79,7 @@ class Entity {
    */
   handle (command) {
     if (!this._commandHandlerFunctions[command.name]) {
+      /* istanbul ignore next */
       this.logger.error(new Error(`Cannot handle incoming command ${command.name || 'no name given'}.`))
       return []
     }
@@ -101,6 +102,7 @@ class Entity {
    */
   apply (event) {
     if (!this._eventHandlerFunctions[event.name]) {
+      /* istanbul ignore next */
       this.logger.error(new Error(`Cannot apply incoming event ${event.name || 'no name given'}.`))
       return []
     }
