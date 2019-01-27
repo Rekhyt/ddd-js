@@ -29,7 +29,8 @@
     "eslint-plugin-standard": "^4.0.0",
     "eslint-standard": "^1.0.2",
     "mocha": "^5.2.0",
-    "nyc": "^13.1.0"
+    "nyc": "^13.1.0",
+    "proxyquire": "^2.1.0"
   },
   "dependencies": {
     "email-validator": "^2.0.4"
@@ -37,6 +38,9 @@
   "nyc": {
     "include": [
       "src/**/*.js"
+    ],
+    "exclude": [
+      "src/index.js"
     ],
     "reporter": [
       "text",
