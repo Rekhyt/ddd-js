@@ -4,7 +4,7 @@ chai.should()
 
 const Entity = require('../../src/Entity')
 
-const Impl = class EntityImpl extends Entity {}
+const Impl = class extends Entity {}
 
 describe('Entity', () => {
   let subjectUnderTest

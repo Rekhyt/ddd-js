@@ -4,7 +4,7 @@ chai.should()
 
 const ReadModel = require('../../src/ReadModel')
 
-const Impl = class ReadModelImpl extends ReadModel {}
+const Impl = class extends ReadModel {}
 
 describe('ReadModel', () => {
   let subjectUnderTest
