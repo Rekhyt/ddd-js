@@ -22,7 +22,7 @@ class EventDispatcherEventEmitter extends EventEmitter {
    * @param {EventHandler} handler
    */
   subscribe (name, handler) {
-    this.on(`${this._eventPrefix}/event`, event => handler.apply(event))
+    this.on(`${this._eventPrefix}/event/${name}`, event => handler.apply(event))
   }
 
   /**
@@ -33,7 +33,7 @@ class EventDispatcherEventEmitter extends EventEmitter {
   async publish (event, save = true) {
     if (save) await this._repository.save(event)
 
-    if (!this.emit(`${this._eventPrefix}/event`, event)) {
+    if (!this.emit(`${this._eventPrefix}/event/${event.name}`, event)) {
       this._logger.error(new Error(`No handlers for incoming event: ${event.name || 'no name given'}`))
     }
   }
