@@ -6,24 +6,35 @@ const fs = require('fs')
 class EventRepositoryJsonFile {
   /**
    * @param {string} path
+   * @param {number} saveInterval in ms
    */
-  constructor (path) {
+  constructor (path, saveInterval = 5000) {
     const fileContents = fs.readFileSync(path, { encoding: 'utf8' })
 
     this._path = path
+    this._intervalTime = saveInterval
     this._content = fileContents ? JSON.parse(fileContents) : { events: [] }
-    this._interval = setInterval(() => this._saveFile(), 5000)
+    this._interval = setInterval(() => this.saveFile(), this._intervalTime)
+  }
 
-    process.on('SIGINT', () => {
-      clearInterval(this._interval)
-      this._saveFile()
+  stopSaving () {
+    clearInterval(this._interval)
+    this._interval = null
+  }
 
-      process.exit(0)
-    })
+  startSaving (newInterval = null) {
+    if (this._interval) this.stopSaving()
+
+    if (newInterval !== null) this._intervalTime = newInterval
+    this._interval = setInterval(() => this.saveFile(), this._intervalTime)
+  }
+
+  saveFile () {
+    fs.writeFileSync(this._path, JSON.stringify(this._content, null, 2))
   }
 
   async save (event) {
-    this._content.events.push(event)
+    return (this._content.events.push(event) - 1).toString()
   }
 
   async get (eventId) {
@@ -36,10 +47,6 @@ class EventRepositoryJsonFile {
 
   async getDateRange (from, to = undefined) {
     return []
-  }
-
-  _saveFile () {
-    fs.writeFileSync(this._path, JSON.stringify(this._content, null, 2))
   }
 }
 
