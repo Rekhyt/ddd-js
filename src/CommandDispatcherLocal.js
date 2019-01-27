@@ -32,6 +32,7 @@ class CommandDispatcherLocal {
    */
   async dispatch (command) {
     if (!this._subscriptions[command.name]) {
+      /* istanbul ignore next */
       this._logger.error(new Error(`No handler for incoming command: ${command.name || 'no name given'}`))
       return
     }

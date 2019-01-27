@@ -2,9 +2,9 @@ const assert = require('assert')
 const chai = require('chai')
 chai.should()
 
-const EventDispatcherLocal = require('../../src/EventDispatcherLocal')
+const EventDispatcherEventEmitter = require('../../src/EventDispatcherEventEmitter')
 
-describe('EventDispatcherLocal', () => {
+describe('EventDispatcherEventEmitter', () => {
   let subjectUnderTest
   let logger
   let eventRepository
@@ -22,7 +22,11 @@ describe('EventDispatcherLocal', () => {
       save: (...args) => {}
     }
 
-    subjectUnderTest = new EventDispatcherLocal(logger, eventRepository)
+    subjectUnderTest = new EventDispatcherEventEmitter(logger, eventRepository)
+  })
+
+  afterEach(() => {
+    subjectUnderTest.removeAllListeners()
   })
 
   describe('publish', () => {

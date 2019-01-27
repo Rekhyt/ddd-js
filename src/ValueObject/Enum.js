@@ -1,5 +1,8 @@
 const InvalidArgumentError = require('./Error/InvalidArgumentError')
 
+/**
+ * @abstract
+ */
 class Enum {
   /**
    * @param {string} value
@@ -16,7 +19,7 @@ class Enum {
    * @returns {string[]}
    */
   getEnumValues () {
-    throw new InvalidArgumentError('Enums must implement their own getEnumValues() method.')
+    throw new Error('Enums must implement their own getEnumValues() method.')
   }
 
   /**

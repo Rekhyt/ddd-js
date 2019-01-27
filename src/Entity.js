@@ -18,6 +18,20 @@ class Entity {
   }
 
   /**
+   * @returns {object} with event names as keys and handler functions as values
+   */
+  get eventHandlerFunctions () {
+    return this._eventHandlerFunctions
+  }
+
+  /**
+   * @returns {object} with event names as keys and handler functions as values
+   */
+  get commandHandlerFunctions () {
+    return this._commandHandlerFunctions
+  }
+
+  /**
    * @param {string} name
    * @param {Function} func
    */
@@ -65,6 +79,7 @@ class Entity {
    */
   handle (command) {
     if (!this._commandHandlerFunctions[command.name]) {
+      /* istanbul ignore next */
       this.logger.error(new Error(`Cannot handle incoming command ${command.name || 'no name given'}.`))
       return []
     }
@@ -87,6 +102,7 @@ class Entity {
    */
   apply (event) {
     if (!this._eventHandlerFunctions[event.name]) {
+      /* istanbul ignore next */
       this.logger.error(new Error(`Cannot apply incoming event ${event.name || 'no name given'}.`))
       return []
     }

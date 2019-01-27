@@ -4,7 +4,9 @@
   "description": "Basic / boilerplate JS classes & functions.",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha test/unit --recursive"
+    "test": "mocha test/unit --recursive",
+    "cover": "nyc npm test",
+    "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -17,6 +19,8 @@
   },
   "homepage": "https://github.com/Rekhyt/ddd-js#readme",
   "devDependencies": {
+    "chai": "^4.2.0",
+    "coveralls": "^3.0.2",
     "eslint": "^5.9.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.14.0",
@@ -24,9 +28,24 @@
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
     "eslint-standard": "^1.0.2",
-    "mocha": "^5.2.0"
+    "mocha": "^5.2.0",
+    "nyc": "^13.1.0",
+    "proxyquire": "^2.1.0"
   },
   "dependencies": {
     "email-validator": "^2.0.4"
+  },
+  "nyc": {
+    "include": [
+      "src/**/*.js"
+    ],
+    "exclude": [
+      "src/index.js"
+    ],
+    "reporter": [
+      "text",
+      "html"
+    ],
+    "all": true
   }
 }

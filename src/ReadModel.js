@@ -34,12 +34,20 @@ class ReadModel {
   }
 
   /**
+   * @returns {object} with event names as keys and handler functions as values
+   */
+  get eventHandlerFunctions () {
+    return this._eventHandlerFunctions
+  }
+
+  /**
    * @param {Event} event
    */
   async apply (event) {
     if (!this._eventHandlerFunctions[event.name]) {
+      /* istanbul ignore next */
       this.logger.error(new Error(`Cannot apply incoming event ${event.name || 'no name given'}.`))
-      return []
+      return
     }
 
     this.logger.debug(
