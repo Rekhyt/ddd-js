@@ -9,4 +9,3 @@ script:
   - npm audit
   - npm test
   - if [[ ${TRAVIS_NODE_VERSION:0:1} == "8"]]; then npm run coveralls; fi
-  TRAVIS_NODE_VERSION
