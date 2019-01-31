@@ -10,8 +10,8 @@ declare interface EventHandler {
 
 declare interface EventDispatcher {
     subscribe(name: string, handler: EventHandler): void
-    publish(event: Event, save): Promise<void>
-    publishMany(events: Event[], save): Promise<void>
+    publish(event: Event, save?: boolean): Promise<void>
+    publishMany(events: Event[], save?: boolean): Promise<void>
     replayAll(): Promise<void>
 }
 
@@ -22,7 +22,7 @@ declare interface Command {
 }
 
 declare interface CommandHandler {
-    handle(command: Command): Event[]
+    execute(command: Command): Event[]
 }
 
 declare interface CommandDispatcher {
@@ -42,5 +42,5 @@ declare interface EventRepository {
     save(event: Event): Promise<string>
     get(eventId: string): Promise<Event>
     getAll (): Promise<Event[]>
-    getDateRange(from: string, to: string|undefined): Promise<Event[]>
+    getDateRange(from: string, to?: string): Promise<Event[]>
 }

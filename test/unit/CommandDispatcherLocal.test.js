@@ -45,7 +45,7 @@ describe('CommandDispatcherLocal', () => {
       let handlerCallCount = 0
 
       const handler = {
-        handle: () => {
+        execute: () => {
           handlerCallCount++
           return []
         }
@@ -61,7 +61,7 @@ describe('CommandDispatcherLocal', () => {
       let publishManyCallCount = 0
 
       const handler = {
-        handle: () => {
+        execute: () => {
           return [{ eventNo: 1 }, { eventNo: 2 }]
         }
       }
@@ -82,14 +82,14 @@ describe('CommandDispatcherLocal', () => {
       }
 
       const handler1 = {
-        handle: () => {
+        execute: () => {
           handler1CallCount++
           return []
         }
       }
 
       const handler2 = {
-        handle: () => {
+        execute: () => {
           handler2CallCount++
           return []
         }

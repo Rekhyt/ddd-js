@@ -85,7 +85,7 @@ describe('RootEntity', () => {
     })
   })
 
-  describe('handle', () => {
+  describe('execute', () => {
     it('should call the command handler for a registered command when incoming', async () => {
       const expectedCommand = { name: 'command1' }
       let handlerCallCount = 0
@@ -95,7 +95,7 @@ describe('RootEntity', () => {
         handlerCallCount++
       })
 
-      await subjectUnderTest.handle(expectedCommand)
+      await subjectUnderTest.execute(expectedCommand)
 
       assert.strictEqual(handlerCallCount, 1)
     })
@@ -110,7 +110,7 @@ describe('RootEntity', () => {
       subjectUnderTest.registerCommand('command2', () => handlerCallCount)
       subjectUnderTest.registerCommand('command3', () => handlerCallCount)
 
-      await subjectUnderTest.handle({ name: 'unknownCommand' })
+      await subjectUnderTest.execute({ name: 'unknownCommand' })
 
       assert.strictEqual(loggerCallCount, 1)
       assert.strictEqual(handlerCallCount, 0)

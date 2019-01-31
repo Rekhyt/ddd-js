@@ -44,7 +44,7 @@ class EventDispatcherLocal {
    * @param {boolean} save
    * @returns {Promise<void>}
    */
-  async publishMany (events, save) {
+  async publishMany (events, save = true) {
     /* istanbul ignore else */
     if (events) this._logger.debug({ events: JSON.stringify(events) }, 'Incoming events')
 

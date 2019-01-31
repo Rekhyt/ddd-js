@@ -77,7 +77,7 @@ class RootEntity {
    * @param {Command} command
    * @returns {Event[]}
    */
-  handle (command) {
+  execute (command) {
     if (!this._commandHandlerFunctions[command.name]) {
       /* istanbul ignore next */
       this.logger.error(new Error(`Cannot handle incoming command ${command.name || 'no name given'}.`))
@@ -91,7 +91,7 @@ class RootEntity {
         commandPayload: JSON.stringify(command.payload, null, 2),
         entity: this.constructor.name
       },
-      'Going to handle a command.'
+      'Going to execute a command.'
     )
     return this._commandHandlerFunctions[command.name](command)
   }
