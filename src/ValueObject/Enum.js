@@ -1,4 +1,4 @@
-const InvalidArgumentError = require('./Error/InvalidArgumentError')
+const InvalidArgumentError = require('../GenericErrors/InvalidArgumentError')
 
 /**
  * @abstract

@@ -3,8 +3,8 @@ const chai = require('chai')
 chai.should()
 
 const StringValue = require('../../../src/ValueObject/StringValue')
-const InvalidArgumentError = require('../../../src/ValueObject/Error/InvalidArgumentError')
-const InvalidTypeError = require('../../../src/ValueObject/Error/InvalidTypeError')
+const InvalidArgumentError = require('../../../src/GenericErrors/InvalidArgumentError')
+const InvalidTypeError = require('../../../src/GenericErrors/InvalidTypeError')
 
 describe('StringValue', () => {
   describe('constructor', () => {

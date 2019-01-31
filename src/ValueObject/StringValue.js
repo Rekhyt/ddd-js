@@ -1,5 +1,5 @@
-const InvalidTypeError = require('./Error/InvalidTypeError')
-const InvalidArgumentError = require('./Error/InvalidArgumentError')
+const InvalidTypeError = require('../GenericErrors/InvalidTypeError')
+const InvalidArgumentError = require('../GenericErrors/InvalidArgumentError')
 
 class StringValue {
   /**

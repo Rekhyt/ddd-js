@@ -1,7 +1,7 @@
 const assert = require('assert')
 
 const EmailAddress = require('../../../src/ValueObject/EmailAddress')
-const InvalidArgumentError = require('../../../src/ValueObject/Error/InvalidArgumentError')
+const InvalidArgumentError = require('../../../src/GenericErrors/InvalidArgumentError')
 
 describe('StringValue', () => {
   describe('constructor', () => {

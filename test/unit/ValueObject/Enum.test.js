@@ -1,7 +1,7 @@
 const assert = require('assert')
 
 const Enum = require('../../../src/ValueObject/Enum')
-const InvalidArgumentError = require('../../../src/ValueObject/Error/InvalidArgumentError')
+const InvalidArgumentError = require('../../../src/GenericErrors/InvalidArgumentError')
 
 const EnumEmpty = class extends Enum {}
 const EnumImpl = class extends Enum {

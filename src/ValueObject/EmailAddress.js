@@ -1,7 +1,7 @@
 const validator = require('email-validator')
 
 const StringValue = require('./StringValue')
-const InvalidArgumentError = require('./Error/InvalidArgumentError')
+const InvalidArgumentError = require('../GenericErrors/InvalidArgumentError')
 
 class EmailAddress extends StringValue {
   constructor (value) {

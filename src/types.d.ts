@@ -44,3 +44,11 @@ declare interface EventRepository {
     getAll (): Promise<Event[]>
     getDateRange(from: string, to?: string): Promise<Event[]>
 }
+
+declare interface InvalidValidationField {
+    fieldName: string
+    messages: {
+        locale: string,
+        message: string
+    }[]
+}
