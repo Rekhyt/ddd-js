@@ -1,4 +1,4 @@
-const Entity = require('./Entity')
+const RootEntity = require('./RootEntity')
 const ReadModel = require('./ReadModel')
 const CommandDispatcherLocal = require('./CommandDispatcherLocal')
 const EventDispatcherLocal = require('./EventDispatcherLocal')
@@ -11,7 +11,7 @@ const StringValue = require('./ValueObject/StringValue')
 const Enum = require('./ValueObject/Enum')
 
 module.exports = {
-  Entity,
+  RootEntity,
   ReadModel,
 
   CommandDispatcherLocal,

@@ -3,7 +3,7 @@
  * @implements EventHandler
  * @abstract
  */
-class Entity {
+class RootEntity {
   /**
    * @param {Logger} logger
    * @param {CommandDispatcher} commandDispatcher
@@ -133,4 +133,4 @@ class Entity {
   }
 }
 
-module.exports = Entity
+module.exports = RootEntity

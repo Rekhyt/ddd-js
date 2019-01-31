@@ -2,11 +2,11 @@ const assert = require('assert')
 const chai = require('chai')
 chai.should()
 
-const Entity = require('../../src/Entity')
+const RootEntity = require('../../src/RootEntity')
 
-const Impl = class extends Entity {}
+const Impl = class extends RootEntity {}
 
-describe('Entity', () => {
+describe('RootEntity', () => {
   let subjectUnderTest
   let logger
   let commandDispatcher
