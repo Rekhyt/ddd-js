@@ -5,7 +5,7 @@ class ValidationError extends Error {
   constructor (invalidFields = []) {
     super()
 
-    this._invalidFields = invalidFields
+    this._invalidFields = [...invalidFields]
   }
 
   /**
