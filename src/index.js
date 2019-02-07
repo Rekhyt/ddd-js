@@ -6,6 +6,7 @@ const EventDispatcherEventEmitter = require('./EventDispatcherEventEmitter')
 const EventRepositoryJsonFile = require('./EventRepositoryJsonFile')
 const InvalidTypeError = require('./GenericErrors/InvalidTypeError')
 const InvalidArgumentError = require('./GenericErrors/InvalidArgumentError')
+const ValidationError = require('./GenericErrors/ValidationError')
 const EmailAddress = require('./ValueObject/EmailAddress')
 const StringValue = require('./ValueObject/StringValue')
 const Enum = require('./ValueObject/Enum')
@@ -23,6 +24,7 @@ module.exports = {
 
   InvalidTypeError,
   InvalidArgumentError,
+  ValidationError,
 
   EmailAddress,
   Enum,

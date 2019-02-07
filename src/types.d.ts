@@ -47,10 +47,5 @@ declare interface EventRepository {
 
 declare interface InvalidValidationField {
     fieldName: string
-    messages: ValidationMessage[]
-}
-
-declare interface ValidationMessage {
-    locale: string,
     message: string
 }

@@ -9,10 +9,11 @@ class ValidationError extends Error {
   }
 
   /**
-   * @param {InvalidValidationField} invalidField
+   * @param {string} fieldName
+   * @param {string} message
    */
-  addInvalidField (invalidField) {
-    this._invalidFields.push(invalidField)
+  addInvalidField (fieldName, message) {
+    this._invalidFields.push({ fieldName, message })
   }
 
   /**
@@ -27,6 +28,13 @@ class ValidationError extends Error {
    */
   get invalidFields () {
     return this._invalidFields
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  hasErrors () {
+    return this._invalidFields.length > 0
   }
 }
 

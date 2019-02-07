@@ -14,8 +14,8 @@ describe('ValidationError', () => {
 
     it('should construct an error with invalid fields if passed', () => {
       const invalidFields = [
-        { fieldName: 'phone', messages: [{ locale: 'de-de', message: 'not a valid phone number' }] },
-        { fieldName: 'email', messages: [{ locale: 'de-de', message: 'not a valid email address' }] }
+        { fieldName: 'phone', message: 'not a valid phone number' },
+        { fieldName: 'email', message: 'not a valid email address' }
       ]
       const err = new ValidationError(invalidFields)
 
@@ -26,26 +26,14 @@ describe('ValidationError', () => {
   describe('addInvalidField', () => {
     it('should add an invalid field to the list', () => {
       const invalidFields = [
-        { fieldName: 'phone', messages: [{ locale: 'en-us', message: 'not a valid phone number' }] },
-        { fieldName: 'email', messages: [{ locale: 'en-us', message: 'not a valid email address' }] }
+        { fieldName: 'phone', message: 'not a valid phone number' },
+        { fieldName: 'email', message: 'not a valid email address' }
       ]
 
-      const newInvalidField = {
-        fieldName: 'name',
-        messages: [
-          {
-            locale: 'en-us',
-            message: 'cannot be empty'
-          },
-          {
-            locale: 'de-de',
-            message: 'darf nicht leer sein'
-          }
-        ]
-      }
+      const newInvalidField = { fieldName: 'name', message: 'cannot be empty' }
 
       const err = new ValidationError(invalidFields)
-      err.addInvalidField(newInvalidField)
+      err.addInvalidField('name', 'cannot be empty')
 
       assert.deepStrictEqual(err.invalidFields, [...invalidFields, newInvalidField])
     })
@@ -54,8 +42,8 @@ describe('ValidationError', () => {
   describe('message', () => {
     it('should return a message containing a list of invalid fields', () => {
       const invalidFields = [
-        { fieldName: 'phone', messages: [{ locale: 'en-us', message: 'not a valid phone number' }] },
-        { fieldName: 'email', messages: [{ locale: 'en-us', message: 'not a valid email address' }] }
+        { fieldName: 'phone', message: 'not a valid phone number' },
+        { fieldName: 'email', message: 'not a valid email address' }
       ]
 
       const err = new ValidationError(invalidFields)
@@ -67,28 +55,36 @@ describe('ValidationError', () => {
   describe('invalidFields', () => {
     it('should return the list of invalid fields', () => {
       const invalidFields = [
-        { fieldName: 'phone', messages: [{ locale: 'en-us', message: 'not a valid phone number' }] },
-        { fieldName: 'email', messages: [{ locale: 'en-us', message: 'not a valid email address' }] }
+        { fieldName: 'phone', message: 'not a valid phone number' },
+        { fieldName: 'email', message: 'not a valid email address' }
       ]
 
-      const newInvalidField = {
-        fieldName: 'name',
-        messages: [
-          {
-            locale: 'en-us',
-            message: 'cannot be empty'
-          },
-          {
-            locale: 'de-de',
-            message: 'darf nicht leer sein'
-          }
-        ]
-      }
+      const newInvalidField = { fieldName: 'name', message: 'cannot be empty' }
 
       const err = new ValidationError(invalidFields)
-      err.addInvalidField(newInvalidField)
+      err.addInvalidField('name', 'cannot be empty')
 
       assert.deepStrictEqual(err.invalidFields, [...invalidFields, newInvalidField])
+    })
+  })
+
+  describe('hasErrors', () => {
+    it('should return false when no errors were ever added', () => {
+      assert.strictEqual(new ValidationError().hasErrors(), false)
+    })
+
+    it('should return true when initialized with errors', () => {
+      assert.strictEqual(
+        new ValidationError([{ fieldName: 'phone', message: 'not a valid phone number' }]).hasErrors(),
+        true
+      )
+    })
+
+    it('should return true when errors were added', () => {
+      const err = new ValidationError()
+      err.addInvalidField('phone', 'not a valid phone number')
+
+      assert.strictEqual(err.hasErrors(), true)
     })
   })
 })
