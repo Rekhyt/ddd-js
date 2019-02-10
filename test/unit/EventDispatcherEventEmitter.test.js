@@ -106,8 +106,8 @@ describe('EventDispatcherEventEmitter', () => {
 
       await subjectUnderTest.publishMany(publishedEvents)
 
-      handledEvents.should.be.an('array').and.include.members(publishedEvents)
-      publishedEvents.should.be.an('array').and.includes.members(handledEvents)
+      handledEvents.should.be.an('array').and.deep.include.members(publishedEvents)
+      publishedEvents.should.be.an('array').and.deep.include.members(handledEvents)
     })
 
     it('should save all events passed to it when the "save" flag is true', async () => {
@@ -132,8 +132,8 @@ describe('EventDispatcherEventEmitter', () => {
       publishedEvents.should.be.an('array').and.includes.members(savedEvents)
       saveCallCount.should.equal(3)
 
-      handledEvents.should.be.an('array').and.includes.members(publishedEvents)
-      publishedEvents.should.be.an('array').and.includes.members(handledEvents)
+      handledEvents.should.be.an('array').and.deep.include.members(publishedEvents)
+      publishedEvents.should.be.an('array').and.deep.include.members(handledEvents)
     })
 
     it('should not save any of the events passed to it when the "save" flag is false', async () => {
@@ -157,8 +157,8 @@ describe('EventDispatcherEventEmitter', () => {
       assert.deepStrictEqual(savedEvents, [])
       saveCallCount.should.equal(0)
 
-      handledEvents.should.be.an('array').and.includes.members(publishedEvents)
-      publishedEvents.should.be.an('array').and.includes.members(handledEvents)
+      handledEvents.should.be.an('array').and.deep.include.members(publishedEvents)
+      publishedEvents.should.be.an('array').and.deep.include.members(handledEvents)
     })
   })
 

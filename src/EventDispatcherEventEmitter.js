@@ -33,7 +33,7 @@ class EventDispatcherEventEmitter extends EventEmitter {
   async publish (event, save = true) {
     if (save) await this._repository.save(event)
 
-    if (!this.emit(`${this._eventPrefix}/event/${event.name}`, event)) {
+    if (!this.emit(`${this._eventPrefix}/event/${event.name}`, JSON.parse(JSON.stringify(event)))) {
       /* istanbul ignore next */
       this._logger.error(new Error(`No handlers for incoming event: ${event.name || 'no name given'}`))
     }

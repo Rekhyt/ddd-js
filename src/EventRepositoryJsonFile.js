@@ -34,15 +34,15 @@ class EventRepositoryJsonFile {
   }
 
   async save (event) {
-    return (this._content.events.push(event) - 1).toString()
+    return (this._content.events.push(JSON.parse(JSON.stringify(event))) - 1).toString()
   }
 
   async get (eventId) {
-    return this._content.events[eventId]
+    return JSON.parse(JSON.stringify(this._content.events[eventId]))
   }
 
   async getAll () {
-    return Object.values(this._content.events)
+    return Object.values(this._content.events).map(event => JSON.parse(JSON.stringify(event)))
   }
 
   async getDateRange (from, to = undefined) {

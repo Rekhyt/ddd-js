@@ -136,7 +136,7 @@ describe('EventRepositoryJsonFile', () => {
       const id = await subjectUnderTest.save(expectedEvent)
       const event = await subjectUnderTest.get(id)
 
-      assert.strictEqual(event, expectedEvent)
+      assert.deepStrictEqual(event, expectedEvent)
     })
   })
 
