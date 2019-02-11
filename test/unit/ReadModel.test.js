@@ -111,25 +111,4 @@ describe('ReadModel', () => {
       assert.strictEqual(handlerCallCount, 0)
     })
   })
-
-  describe('createEvent', () => {
-    it('should create an event object out of the passed name and payload', () => {
-      const expectedName = 'event1'
-      const expectedPayload = { p1: 'lol', p2: 'troll', p3: 'roflmao' }
-
-      subjectUnderTest.createEvent(expectedName, expectedPayload)
-        .should.be.an('object')
-        .that.includes({ name: expectedName, payload: expectedPayload })
-        .and.has.property('time')
-    })
-
-    it('should create an event object with empty payload if only name was passed', () => {
-      const expectedName = 'event1'
-
-      subjectUnderTest.createEvent(expectedName)
-        .should.be.an('object')
-        .that.deep.includes({ name: expectedName, payload: {} })
-        .and.has.property('time')
-    })
-  })
 })

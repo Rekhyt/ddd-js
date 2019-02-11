@@ -122,7 +122,7 @@ class RootEntity {
   /**
    * @param {string} name
    * @param {Object} payload
-   * @returns {Event}
+   * @returns {{payload: Object, name: string, time: string}|Event}
    */
   createEvent (name, payload = {}) {
     return {

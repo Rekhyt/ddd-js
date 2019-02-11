@@ -61,19 +61,6 @@ class ReadModel {
     )
     await this._eventHandlerFunctions[event.name](event)
   }
-
-  /**
-   * @param {string} name
-   * @param {Object} payload
-   * @returns {Event}
-   */
-  createEvent (name, payload = {}) {
-    return {
-      name,
-      time: new Date().toISOString(),
-      payload
-    }
-  }
 }
 
 module.exports = ReadModel
