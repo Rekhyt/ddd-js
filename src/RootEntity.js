@@ -50,7 +50,7 @@ class RootEntity {
       commandName: name,
       entity: this.constructor.name,
       functionName: func.toString()
-    }, 'Registered handler function for a command.')
+    }, 'Registered entity handler function for a command.')
   }
 
   /**
@@ -91,7 +91,7 @@ class RootEntity {
         commandPayload: JSON.stringify(command.payload, null, 2),
         entity: this.constructor.name
       },
-      'Going to execute a command.'
+      'Going to execute a entity-handled command.'
     )
     return this._commandHandlerFunctions[command.name](command)
   }

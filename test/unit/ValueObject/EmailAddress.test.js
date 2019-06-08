@@ -3,7 +3,7 @@ const assert = require('assert')
 const EmailAddress = require('../../../src/ValueObject/EmailAddress')
 const InvalidArgumentError = require('../../../src/GenericErrors/InvalidArgumentError')
 
-describe('StringValue', () => {
+describe('EmailAddress', () => {
   describe('constructor', () => {
     it('should construct an object if a valid email address is passed', () => {
       const expectedEmail = 'no-reply@weird-webdesign.com'
