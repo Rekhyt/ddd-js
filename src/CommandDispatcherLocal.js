@@ -37,7 +37,7 @@ class CommandDispatcherLocal {
       return
     }
 
-    await this._eventDispatcher.publishMany(this._subscriptions[command.name].execute(command))
+    await this._eventDispatcher.publishMany(await this._subscriptions[command.name].execute(command))
   }
 }
 

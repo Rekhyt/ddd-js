@@ -7,6 +7,7 @@ const EventDispatcherEventEmitter = require('./EventDispatcherEventEmitter')
 const EventRepositoryJsonFile = require('./EventRepositoryJsonFile')
 const InvalidTypeError = require('./GenericErrors/InvalidTypeError')
 const InvalidArgumentError = require('./GenericErrors/InvalidArgumentError')
+const SagaError = require('./GenericErrors/SagaError')
 const ValidationError = require('./GenericErrors/ValidationError')
 const DateTime = require('./ValueObject/DateTime')
 const EmailAddress = require('./ValueObject/EmailAddress')
@@ -27,6 +28,7 @@ module.exports = {
 
   InvalidTypeError,
   InvalidArgumentError,
+  SagaError,
   ValidationError,
 
   DateTime,

@@ -77,7 +77,7 @@ class RootEntity {
    * @param {Command} command
    * @returns {Event[]}
    */
-  execute (command) {
+  async execute (command) {
     if (!this._commandHandlerFunctions[command.name]) {
       /* istanbul ignore next */
       this.logger.error(new Error(`Cannot handle incoming command ${command.name || 'no name given'}.`))

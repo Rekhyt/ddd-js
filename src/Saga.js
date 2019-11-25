@@ -1,3 +1,6 @@
+const uuid = require('uuid/v4')
+const SagaError = require('./GenericErrors/SagaError')
+
 /**
  * @implements CommandHandler
  * @abstract
@@ -10,11 +13,13 @@ class Saga {
   constructor (logger, commandDispatcher) {
     this.logger = logger
     this._commandDispatcher = commandDispatcher
+
     this._commandHandlerFunctions = {}
+    this._runningSagas = {}
   }
 
   /**
-   * @returns {object} with event names as keys and handler functions as values
+   * @returns {object} with command names as keys and handler functions as values
    */
   get commandHandlerFunctions () {
     return this._commandHandlerFunctions
@@ -46,7 +51,7 @@ class Saga {
    * @param {Command} command
    * @returns {Event[]}
    */
-  execute (command) {
+  async execute (command) {
     if (!this._commandHandlerFunctions[command.name]) {
       /* istanbul ignore next */
       this.logger.error(new Error(`Cannot handle incoming command ${command.name || 'no name given'}.`))
@@ -63,6 +68,110 @@ class Saga {
       'Going to execute a saga-handled command.'
     )
     return this._commandHandlerFunctions[command.name](command)
+  }
+
+  /**
+   * @param {Command} command
+   * @returns {Promise<void>}
+   */
+  async _dispatch (command) {
+    return this._commandDispatcher.dispatch(command)
+  }
+
+  /**
+   * @param {string} name
+   * @param {Object} payload
+   * @returns {{payload: Object, name: string, time: string}|Event}
+   */
+  createEvent (name, payload = {}) {
+    return {
+      name,
+      time: new Date().toISOString(),
+      payload
+    }
+  }
+
+  /**
+   * @returns {string} The unique identifier of the started saga
+   */
+  start () {
+    const identifier = uuid()
+    this._runningSagas[identifier] = {}
+    this.logger.trace('Saga started', { class: this.constructor.name, identifier })
+
+    return identifier
+  }
+
+  /**
+   * @param {string} identifier
+   * @param {Command} command
+   * @param {string} entity
+   * @param {Function} rollbackHandler
+   * @param {number} timeout
+   */
+  addTask (identifier, command, entity, rollbackHandler, timeout = 1000) {
+    this._runningSagas[identifier][command.name] = { command, entity, rollbackHandler, timeout, status: 'added' }
+    this.logger.trace('Task added to saga', { class: this.constructor.name, identifier, command, entity, timeout })
+  }
+
+  /**
+   * @param {string} identifier
+   * @returns {Promise<void>}
+   * @throws {SagaError} if any of the commands fail or time out
+   */
+  async run (identifier) {
+    this.logger.trace('Running saga', { class: this.constructor.name, identifier })
+
+    const tasks = Object.values(this._runningSagas[identifier])
+    const sagaError = new SagaError()
+
+    this.logger.trace('Executing tasks.', { class: this.constructor.name })
+    await Promise.all(Object.entries(tasks).map(async ([commandName, task]) => {
+      return new Promise(async resolve => {
+        const timeout = setTimeout(
+          () => {
+            task.status = 'timed out'
+            sagaError.addError(task.entity, new Error(`Command ${commandName} triggered by saga timed out.`))
+            resolve()
+          },
+          task.timeout
+        )
+
+        try {
+          this.logger.trace('Executing task.', { class: this.constructor.name, identifier, commandName, task })
+          await this._dispatch(task.command)
+          this.logger.trace('Task executed.', { class: this.constructor.name, identifier, commandName, task })
+          task.status = 'done'
+        } catch (err) {
+          this.logger.trace('Task execution failed.', { class: this.constructor.name, identifier, commandName, task })
+          task.status = 'failed'
+          sagaError.addError(task.entity, err)
+        }
+
+        clearTimeout(timeout)
+        resolve()
+      })
+    }))
+
+    this.logger.trace('Tasks executed.', { class: this.constructor.name, identifier })
+    if (!sagaError.hasErrors()) return
+
+    const rollbackCommands = []
+    for (const task of tasks) {
+      this.logger.trace('Checking tasks for required rollback.', { class: this.constructor.name, identifier, task })
+      if (task.status !== 'done' && task.status !== 'timed out') continue
+
+      rollbackCommands.push(task.rollbackHandler())
+    }
+
+    try {
+      this.logger.trace('Executing rollback tasks.', { class: this.constructor.name, identifier, rollbackCommands })
+      await Promise.all(rollbackCommands.map(c => this._dispatch(c)))
+    } catch  (err) {
+      this.logger.fatal(err, 'At least one rollback command failed after at least one command of a saga failed!')
+    }
+
+    throw sagaError
   }
 }
 

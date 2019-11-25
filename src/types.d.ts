@@ -22,7 +22,7 @@ declare interface Command {
 }
 
 declare interface CommandHandler {
-    execute(command: Command): Event[]
+    execute(command: Command): Promise<Event[]>
 }
 
 declare interface CommandDispatcher {
