@@ -9,10 +9,12 @@ class Saga {
   /**
    * @param {Logger} logger
    * @param {CommandDispatcher} commandDispatcher
+   * @param {Function} [idGenerator]
    */
-  constructor (logger, commandDispatcher) {
+  constructor (logger, commandDispatcher, idGenerator = null) {
     this.logger = logger
     this._commandDispatcher = commandDispatcher
+    this.idGenerator = idGenerator || uuid
 
     this._commandHandlerFunctions = {}
     this._runningSagas = {}
@@ -94,9 +96,9 @@ class Saga {
   /**
    * @returns {string} The unique identifier of the started saga
    */
-  start () {
-    const identifier = uuid()
-    this._runningSagas[identifier] = {}
+  provision () {
+    const identifier = this.idGenerator()
+    this._runningSagas[identifier] = { className: this.constructor.name, tasks: {} }
     this.logger.trace('Saga started', { class: this.constructor.name, identifier })
 
     return identifier
@@ -110,7 +112,9 @@ class Saga {
    * @param {number} timeout
    */
   addTask (identifier, command, entity, rollbackHandler, timeout = 1000) {
-    this._runningSagas[identifier][command.name] = { command, entity, rollbackHandler, timeout, status: 'added' }
+    if (!this._runningSagas[identifier]) throw new Error(`No saga found with given identifier ${identifier}.`)
+
+    this._runningSagas[identifier].tasks[command.name] = { command, entity, rollbackHandler, timeout, status: 'added' }
     this.logger.trace('Task added to saga', { class: this.constructor.name, identifier, command, entity, timeout })
   }
 
@@ -120,9 +124,10 @@ class Saga {
    * @throws {SagaError} if any of the commands fail or time out
    */
   async run (identifier) {
+    if (!this._runningSagas[identifier]) throw new Error(`No saga found with given identifier ${identifier}.`)
     this.logger.trace('Running saga', { class: this.constructor.name, identifier })
 
-    const tasks = Object.values(this._runningSagas[identifier])
+    const tasks = Object.values(this._runningSagas[identifier].tasks)
     const sagaError = new SagaError()
 
     this.logger.trace('Executing tasks.', { class: this.constructor.name })
@@ -154,6 +159,8 @@ class Saga {
     }))
 
     this.logger.trace('Tasks executed.', { class: this.constructor.name, identifier })
+    delete this._runningSagas[identifier]
+
     if (!sagaError.hasErrors()) return
 
     const rollbackCommands = []
