@@ -17,14 +17,15 @@ describe('Saga', () => {
       debug: (...args) => {},
       info: (...args) => {},
       warn: (...args) => console.log(args),
-      error: (...args) => console.log(args)
+      error: (...args) => console.log(args),
+      fatal: (...args) => console.log(args)
     }
 
     commandDispatcher = {
       subscribe: () => {}
     }
 
-    subjectUnderTest = new Impl(logger, commandDispatcher)
+    subjectUnderTest = new Impl(logger, commandDispatcher, () => 'id')
   })
 
   describe('registerCommand', () => {
@@ -109,6 +110,68 @@ describe('Saga', () => {
 
       assert.strictEqual(loggerCallCount, 1)
       assert.strictEqual(handlerCallCount, 0)
+    })
+  })
+
+  describe('createEvent', () => {
+    it('should create an event object out of the passed name and payload', () => {
+      const expectedName = 'event1'
+      const expectedPayload = { p1: 'lol', p2: 'troll', p3: 'roflmao' }
+
+      subjectUnderTest.createEvent(expectedName, expectedPayload)
+        .should.be.an('object')
+        .that.includes({ name: expectedName, payload: expectedPayload })
+        .and.has.property('time')
+    })
+
+    it('should create an event object with empty payload if only name was passed', () => {
+      const expectedName = 'event1'
+
+      subjectUnderTest.createEvent(expectedName)
+        .should.be.an('object')
+        .that.deep.includes({ name: expectedName, payload: {} })
+        .and.has.property('time')
+    })
+  })
+
+  describe('provision', () => {
+    it('should start a saga and return its identifier', () => {
+      subjectUnderTest.provision().should.be.a('string').that.equals('id')
+      subjectUnderTest._runningSagas.should.be.an('object').with.deep.property('id', { className: 'Impl', tasks: {} })
+    })
+  })
+
+  describe('addTask', () => {
+    it('should throw an error if no saga with given ID was provisioned', () => {
+      (() => subjectUnderTest.addTask(
+        'unknown-id',
+        { name: 'Hotel.bookRoom', time: 'now', payload: {} },
+        'Hotel',
+        () => {}
+      )).should.throw(`No saga found with given identifier unknown-id.`)
+    })
+
+    it('should add the task to the list with status "added"', () => {
+      const rollbackHandler = () => {}
+
+      subjectUnderTest.provision().should.be.a('string').that.equals('id')
+      subjectUnderTest.addTask(
+        'id',
+        { name: 'Hotel.bookRoom', time: 'now', payload: {} },
+        'Hotel',
+        rollbackHandler,
+        999
+      )
+      subjectUnderTest._runningSagas.should.be.an('object').with.deep.property('id', {
+        className: 'Impl',
+        tasks: { 'Hotel.bookRoom': {
+          command: { name: 'Hotel.bookRoom', time: 'now', payload: {} },
+          entity: 'Hotel',
+          rollbackHandler,
+          status: 'added',
+          timeout: 999
+        } }
+      })
     })
   })
 })
