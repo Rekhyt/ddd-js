@@ -38,9 +38,11 @@ describe('SagaError', () => {
   describe('message', () => {
     it('should return a message containing the entity the error occured on', () => {
       const error1 = new Error('Closed during requested period')
+      const error2 = new Error('Room already booked')
 
       const err = new SagaError()
       err.addError('Hotel', error1)
+      err.addError('Hotel', error2)
 
       err.message.should.be.a('string').that.contains('entity').and.that.contains('Hotel')
     })

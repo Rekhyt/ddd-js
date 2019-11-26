@@ -17,7 +17,8 @@ class SagaError extends Error {
    * @returns {string}
    */
   get message () {
-    return `Errors on entit${this._errors.length === 1 ? 'y' : 'ies'} ${this._errors.map(e => e.entityName).join(', ')}`
+    const affectedEntities = [...new Set(this._errors.map(e => e.entityName))]
+    return `Errors on entit${affectedEntities.length === 1 ? 'y' : 'ies'} ${affectedEntities.join(', ')}`
   }
 
   /**
