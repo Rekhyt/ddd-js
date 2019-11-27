@@ -60,8 +60,5 @@ typings/
 # next.js build output
 .next
 
-# nodeJS locked dependencies
-package-lock.json
-
 # intelliJ
 .idea/
