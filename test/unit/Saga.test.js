@@ -1,6 +1,12 @@
 const assert = require('assert')
 const chai = require('chai')
+const chaiAsPromised = require('chai-as-promised')
+const sinon = require('sinon')
+
+chai.use(chaiAsPromised)
 chai.should()
+
+const uuid = require('uuid/v4')
 
 const Saga = require('../../src/Saga')
 
@@ -13,9 +19,9 @@ describe('Saga', () => {
 
   beforeEach(() => {
     logger = {
-      trace: (...args) => {},
-      debug: (...args) => {},
-      info: (...args) => {},
+      trace: () => {},
+      debug: () => {},
+      info: () => {},
       warn: (...args) => console.log(args),
       error: (...args) => console.log(args),
       fatal: (...args) => console.log(args)
@@ -26,6 +32,18 @@ describe('Saga', () => {
     }
 
     subjectUnderTest = new Impl(logger, commandDispatcher, () => 'id')
+  })
+
+  describe('constructor', () => {
+    it('should use uuid/v4 as ID generator if none was passed', () => {
+      const subjectUnderTest = new Impl(logger, commandDispatcher)
+      subjectUnderTest._idGenerator.should.equal(uuid)
+    })
+
+    it('should use the passed ID generator', () => {
+      const subjectUnderTest = new Impl(logger, commandDispatcher, 'test')
+      subjectUnderTest._idGenerator.should.equal('test')
+    })
   })
 
   describe('registerCommand', () => {
@@ -173,5 +191,106 @@ describe('Saga', () => {
         } }
       })
     })
+  })
+
+  describe('run', () => {
+    it('should throw an error if no saga with given ID was provisioned', async () => {
+      await subjectUnderTest.run('unknown-id')
+        .should.eventually.be.rejectedWith(`No saga found with given identifier unknown-id.`)
+    })
+
+    it('should dispatch the commands for its tasks', async () => {
+      const command1 = { name: 'Hotel.bookRoom', time: 'now', payload: { roomNo: 42 } }
+      const command2 = { name: 'Car.rent', time: 'now', payload: { carNo: 1337 } }
+
+      const rollbackHandler = sinon.stub()
+      commandDispatcher.dispatch = sinon.stub().resolves()
+
+      subjectUnderTest.provision().should.be.a('string').that.equals('id')
+
+      subjectUnderTest.addTask('id', command1, 'Hotel', rollbackHandler)
+      subjectUnderTest.addTask('id', command2, 'Car', rollbackHandler)
+
+      await subjectUnderTest.run('id')
+
+      sinon.assert.calledTwice(commandDispatcher.dispatch)
+      sinon.assert.calledWithExactly(commandDispatcher.dispatch, command1)
+      sinon.assert.calledWithExactly(commandDispatcher.dispatch, command2)
+
+      sinon.assert.notCalled(rollbackHandler)
+    })
+
+    it('should throw an error and roll back done or timed out tasks if any of the tasks fail', async () => {
+      const command1 = { name: 'Hotel.bookRoom', time: 'now', payload: { roomNo: 42 } }
+      const command2 = { name: 'Car.rent', time: 'now', payload: { carNo: 1337 } }
+      const command3 = { name: 'Flight.book', time: 'now', payload: { flightNo: 314 } }
+      const rollbackCommand1 = { name: 'Hotel.cancelRoom', time: 'now', payload: { roomNo: 42 } }
+      const rollbackCommand3 = { name: 'Flight.cancel', time: 'now', payload: { flightNo: 42 } }
+      const error = new Error('Car not available')
+
+      const rollbackHandler1 = sinon.stub().returns(rollbackCommand1)
+      const rollbackHandler2 = sinon.stub()
+      const rollbackHandler3 = sinon.stub().returns(rollbackCommand3)
+
+      commandDispatcher.dispatch = sinon.stub()
+        .onFirstCall().resolves()
+        .onSecondCall().rejects(error)
+        .onThirdCall().returns(new Promise(resolve => setTimeout(resolve, 10)))
+
+      subjectUnderTest.provision().should.be.a('string').that.equals('id')
+
+      subjectUnderTest.addTask('id', command1, 'Hotel', rollbackHandler1)
+      subjectUnderTest.addTask('id', command2, 'Car', rollbackHandler2)
+      subjectUnderTest.addTask('id', command3, 'Flight', rollbackHandler3, 0)
+
+      await subjectUnderTest.run('id').should.be.rejectedWith('Errors on entities Car, Flight')
+
+      sinon.assert.callCount(commandDispatcher.dispatch, 5)
+      sinon.assert.calledWithExactly(commandDispatcher.dispatch, command1)
+      sinon.assert.calledWithExactly(commandDispatcher.dispatch, command2)
+      sinon.assert.calledWithExactly(commandDispatcher.dispatch, command3)
+      sinon.assert.calledWithExactly(commandDispatcher.dispatch, rollbackCommand1)
+      sinon.assert.calledWithExactly(commandDispatcher.dispatch, rollbackCommand3)
+
+      sinon.assert.calledOnce(rollbackHandler1)
+      sinon.assert.notCalled(rollbackHandler2)
+      sinon.assert.calledOnce(rollbackHandler3)
+    })
+  })
+
+  it('should log a fatal error if the rollback fails', async () => {
+    const command1 = { name: 'Hotel.bookRoom', time: 'now', payload: { roomNo: 42 } }
+    const command2 = { name: 'Car.rent', time: 'now', payload: { carNo: 1337 } }
+    const rollbackCommand1 = { name: 'Hotel.cancelRoom', time: 'now', payload: { roomNo: 42 } }
+    const error = new Error('Car not available')
+    const rollbackError = new Error('Hotel service temporarily unavailable')
+
+    const rollbackHandler1 = sinon.stub().returns(rollbackCommand1)
+    const rollbackHandler2 = sinon.stub()
+
+    logger.fatal = sinon.stub()
+
+    commandDispatcher.dispatch = sinon.stub()
+      .onFirstCall().resolves()
+      .onSecondCall().rejects(error)
+      .onThirdCall().rejects(rollbackError)
+
+    subjectUnderTest.provision().should.be.a('string').that.equals('id')
+
+    subjectUnderTest.addTask('id', command1, 'Hotel', rollbackHandler1)
+    subjectUnderTest.addTask('id', command2, 'Car', rollbackHandler2)
+
+    await subjectUnderTest.run('id').should.be.rejectedWith('Errors on entity Car')
+
+    sinon.assert.callCount(commandDispatcher.dispatch, 3)
+    sinon.assert.calledWithExactly(commandDispatcher.dispatch, command1)
+    sinon.assert.calledWithExactly(commandDispatcher.dispatch, command2)
+    sinon.assert.calledWithExactly(commandDispatcher.dispatch, rollbackCommand1)
+
+    sinon.assert.calledOnce(rollbackHandler1)
+    sinon.assert.notCalled(rollbackHandler2)
+
+    sinon.assert.calledOnce(logger.fatal)
+    sinon.assert.calledWithMatch(logger.fatal, rollbackError, sinon.match.string)
   })
 })

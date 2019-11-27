@@ -14,7 +14,7 @@ class Saga {
   constructor (logger, commandDispatcher, idGenerator = null) {
     this.logger = logger
     this._commandDispatcher = commandDispatcher
-    this.idGenerator = idGenerator || uuid
+    this._idGenerator = idGenerator || uuid
 
     this._commandHandlerFunctions = {}
     this._runningSagas = {}
@@ -77,7 +77,7 @@ class Saga {
    * @returns {Promise<void>}
    */
   async _dispatch (command) {
-    return this._commandDispatcher.dispatch(command)
+    await this._commandDispatcher.dispatch(command)
   }
 
   /**
@@ -97,7 +97,7 @@ class Saga {
    * @returns {string} The unique identifier of the started saga
    */
   provision () {
-    const identifier = this.idGenerator()
+    const identifier = this._idGenerator()
     this._runningSagas[identifier] = { className: this.constructor.name, tasks: {} }
     this.logger.trace('Saga started', { class: this.constructor.name, identifier })
 
@@ -133,14 +133,11 @@ class Saga {
     this.logger.trace('Executing tasks.', { class: this.constructor.name })
     await Promise.all(Object.entries(tasks).map(async ([commandName, task]) => {
       return new Promise(async resolve => {
-        const timeout = setTimeout(
-          () => {
-            task.status = 'timed out'
-            sagaError.addError(task.entity, new Error(`Command ${commandName} triggered by saga timed out.`))
-            resolve()
-          },
-          task.timeout
-        )
+        const timeout = setTimeout(() => {
+          task.status = 'timed out'
+          sagaError.addError(task.entity, new Error(`Command ${commandName} triggered by saga timed out.`))
+          resolve()
+        }, task.timeout)
 
         try {
           this.logger.trace('Executing task.', { class: this.constructor.name, identifier, commandName, task })
@@ -174,7 +171,7 @@ class Saga {
     try {
       this.logger.trace('Executing rollback tasks.', { class: this.constructor.name, identifier, rollbackCommands })
       await Promise.all(rollbackCommands.map(c => this._dispatch(c)))
-    } catch  (err) {
+    } catch (err) {
       this.logger.fatal(err, 'At least one rollback command failed after at least one command of a saga failed!')
     }
 
