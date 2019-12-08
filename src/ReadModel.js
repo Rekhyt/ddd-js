@@ -13,6 +13,8 @@ class ReadModel {
     this._eventHandlerFunctions = {}
   }
 
+  setup () {}
+
   /**
    * @param {string} name
    * @param {Function} func

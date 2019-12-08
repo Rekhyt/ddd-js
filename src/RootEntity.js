@@ -17,6 +17,8 @@ class RootEntity {
     this._eventHandlerFunctions = {}
   }
 
+  setup () {}
+
   /**
    * @returns {object} with event names as keys and handler functions as values
    */

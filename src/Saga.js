@@ -20,6 +20,8 @@ class Saga {
     this._runningSagas = {}
   }
 
+  setup () {}
+
   /**
    * @returns {object} with command names as keys and handler functions as values
    */
