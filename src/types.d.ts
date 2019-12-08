@@ -38,7 +38,7 @@ declare interface Logger {
     error(...args)
 }
 
-declare interface EventRepository {
+declare interface EventStore {
     save(event: Event): Promise<string>
     get(eventId: string): Promise<Event>
     getAll (): Promise<Event[]>

@@ -2,16 +2,16 @@ const assert = require('assert')
 const proxyquire = require('proxyquire')
 
 let fs = {}
-const EventRepositoryJsonFile = proxyquire('../../src/EventRepositoryJsonFile', { fs })
+const EventStoreJsonFile = proxyquire('../../src/EventStoreJsonFile', { fs })
 
-describe('EventRepositoryJsonFile', () => {
+describe('EventStoreJsonFile', () => {
   let subjectUnderTest
 
   beforeEach(() => {
     fs.readFileSync = () => {}
     fs.writeFileSync = () => {}
 
-    subjectUnderTest = new EventRepositoryJsonFile('...', 10)
+    subjectUnderTest = new EventStoreJsonFile('...', 10)
   })
 
   afterEach(() => {
@@ -35,7 +35,7 @@ describe('EventRepositoryJsonFile', () => {
         called = true
       }
 
-      subjectUnderTest = new EventRepositoryJsonFile(expectedPath)
+      subjectUnderTest = new EventStoreJsonFile(expectedPath)
       assert.strictEqual(called, true)
     })
 
@@ -47,7 +47,7 @@ describe('EventRepositoryJsonFile', () => {
         return JSON.stringify(expectedContents)
       }
 
-      subjectUnderTest = new EventRepositoryJsonFile(expectedPath)
+      subjectUnderTest = new EventStoreJsonFile(expectedPath)
 
       assert.deepStrictEqual(subjectUnderTest._content, expectedContents)
     })
@@ -59,7 +59,7 @@ describe('EventRepositoryJsonFile', () => {
         callCount++
       }
 
-      subjectUnderTest = new EventRepositoryJsonFile(expectedPath, 10)
+      subjectUnderTest = new EventStoreJsonFile(expectedPath, 10)
       await new Promise(resolve => setTimeout(() => resolve(), 35))
 
       assert.strictEqual(callCount, 3)

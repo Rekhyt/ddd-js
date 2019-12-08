@@ -4,7 +4,7 @@ const Saga = require('./Saga')
 const CommandDispatcherLocal = require('./CommandDispatcherLocal')
 const EventDispatcherLocal = require('./EventDispatcherLocal')
 const EventDispatcherEventEmitter = require('./EventDispatcherEventEmitter')
-const EventRepositoryJsonFile = require('./EventRepositoryJsonFile')
+const EventStoreJsonFile = require('./EventStoreJsonFile')
 const InvalidTypeError = require('./GenericErrors/InvalidTypeError')
 const InvalidArgumentError = require('./GenericErrors/InvalidArgumentError')
 const SagaError = require('./GenericErrors/SagaError')
@@ -24,7 +24,7 @@ module.exports = {
   EventDispatcherLocal,
   EventDispatcherEventEmitter,
 
-  EventRepositoryJsonFile,
+  EventStoreJsonFile,
 
   InvalidTypeError,
   InvalidArgumentError,

@@ -1,9 +1,9 @@
 const fs = require('fs')
 
 /**
- * @implements EventRepository
+ * @implements EventStore
  */
-class EventRepositoryJsonFile {
+class EventStoreJsonFile {
   /**
    * @param {string} path
    * @param {number} saveInterval in ms
@@ -15,6 +15,12 @@ class EventRepositoryJsonFile {
     this._intervalTime = saveInterval
     this._content = fileContents ? JSON.parse(fileContents) : { events: [] }
     this._interval = setInterval(() => this.saveFile(), this._intervalTime)
+
+    process.on('SIGINT', () => {
+      this.stopSaving()
+      this.saveFile()
+      process.exit(0)
+    })
   }
 
   stopSaving () {
@@ -50,4 +56,4 @@ class EventRepositoryJsonFile {
   }
 }
 
-module.exports = EventRepositoryJsonFile
+module.exports = EventStoreJsonFile

@@ -6,7 +6,7 @@ const EventEmitter = require('events')
 class EventDispatcherEventEmitter extends EventEmitter {
   /**
    * @param {Logger} logger
-   * @param {EventRepository} repository
+   * @param {EventStore} repository
    * @param {string} eventPrefix
    */
   constructor (logger, repository, eventPrefix = 'Rekhyt/ddd-base') {

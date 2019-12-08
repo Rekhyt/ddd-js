@@ -4,7 +4,7 @@
 class EventDispatcherLocal {
   /**
    * @param {Logger} logger
-   * @param {EventRepository} repository
+   * @param {EventStore} repository
    */
   constructor (logger, repository) {
     this._logger = logger
