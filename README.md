@@ -79,6 +79,7 @@ class Messages extends ReadModel {
 }
 ```
 
+### Running The Application
 ```javascript
 const bunyan = require('bunyan')
 const { Runner } = require('ddd-js')
