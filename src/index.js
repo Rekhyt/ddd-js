@@ -1,3 +1,4 @@
+const Runner = require('./Runner')
 const RootEntity = require('./RootEntity')
 const ReadModel = require('./ReadModel')
 const Saga = require('./Saga')
@@ -15,6 +16,8 @@ const StringValue = require('./ValueObject/StringValue')
 const Enum = require('./ValueObject/Enum')
 
 module.exports = {
+  Runner,
+
   RootEntity,
   ReadModel,
   Saga,
