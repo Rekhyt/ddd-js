@@ -11,6 +11,7 @@ Basic / boilerplate JS classes &amp; functions.
 The example application will be a small chat that allows sending messages under an alias.
 
 ### Value Objects
+**src/ValueObjects.js**
 ```javascript
 const { NonEmptyStringValue } = require('ddd-js')
 
@@ -21,6 +22,7 @@ module.exports = { Author, ChatText }
 ```
 
 ### Root Entity
+**src/Entities/Message.js**
 ```javascript
 const { RootEntity, DateTime } = require('ddd-js')
 const { Author, ChatText } = require('./ValueObjects') // see Value Objects
@@ -61,6 +63,7 @@ module.exports = Message
 ```
 
 ### Read Model
+**src/ReadModel/Messages.js**
 ```javascript
 const { ReadModel } = require('ddd-js')
 
@@ -79,7 +82,8 @@ class Messages extends ReadModel {
 }
 ```
 
-### Running The Application
+### Wiring Things Together
+**src/app.js**
 ```javascript
 const bunyan = require('bunyan')
 const { Runner } = require('ddd-js')
@@ -94,7 +98,7 @@ Runner.createWithExpress(logger)
 ```
 
 ### Usage
-There's your API! You can now `POST` commands to `http://localhost:8000/command` and `GET` messages from
+Run `node src/app.js` - There's your API! You can now `POST` commands to `http://localhost:8000/command` and `GET` messages from
 `http://localhost:8000/messages`.
 
 Example:
