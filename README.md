@@ -11,7 +11,9 @@ Basic / boilerplate JS classes &amp; functions.
 The example application will be a small chat that allows sending messages under an alias.
 
 ### Value Objects
-**src/ValueObjects.js**
+<details>
+  <summary>**src/ValueObjects.js**</summary>
+
 ```javascript
 const { NonEmptyStringValue } = require('ddd-js')
 
@@ -20,6 +22,7 @@ class ChatText extends NonEmptyStringValue {}
 
 module.exports = { Author, ChatText }
 ```
+</details>
 
 ### Root Entity
 **src/Entities/Message.js**
