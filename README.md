@@ -8,13 +8,11 @@
 Basic / boilerplate JS classes &amp; functions.
 
 ## Quick Start
-The example application will be a small chat that allows sending messages under an alias.
-
-The app will feature:
-* value objects for validation of the author's name and the chat text
-* a root entity that accepts commands, validates input and returns the proper events
-* a read model keeping an API representation of all messages sent
-* an API that takes commands and gives access to the read model
+The example application will be a small chat that allows sending messages under an alias. Implementation consists of:
+* **value objects** for validation of the author's name and the chat text
+* a **root entity** that accepts commands, validates input and returns the proper events
+* a **read model** keeping an API representation of all messages sent
+* an **API** that takes commands and gives access to the read model
 
 <details>
 <summary><b>src/ValueObjects.js</b></summary>
