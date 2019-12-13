@@ -12,7 +12,7 @@ The example application will be a small chat that allows sending messages under 
 
 ### Value Objects
 <details>
-  <summary>**src/ValueObjects.js**</summary>
+<summary><b>src/ValueObjects.js</b></summary>
 
 ```javascript
 const { NonEmptyStringValue } = require('ddd-js')
