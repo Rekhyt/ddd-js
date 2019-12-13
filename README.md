@@ -10,7 +10,12 @@ Basic / boilerplate JS classes &amp; functions.
 ## Quick Start
 The example application will be a small chat that allows sending messages under an alias.
 
-### Value Objects
+The app will feature:
+* value objects for validation of the author's name and the chat text
+* a root entity that accepts commands, validates input and returns the proper events
+* a read model keeping an API representation of all messages sent
+* an API that takes commands and gives access to the read model
+
 <details>
 <summary><b>src/ValueObjects.js</b></summary>
 
@@ -24,8 +29,9 @@ module.exports = { Author, ChatText }
 ```
 </details>
 
-### Root Entity
-**src/Entities/Message.js**
+<details>
+<summary><b>src/Entities/Message.js</b></summary>
+
 ```javascript
 const { RootEntity, DateTime } = require('ddd-js')
 const { Author, ChatText } = require('./ValueObjects') // see Value Objects
@@ -64,9 +70,11 @@ class Message extends RootEntity {
 
 module.exports = Message
 ```
+</details>
 
-### Read Model
-**src/ReadModel/Messages.js**
+<details>
+<summary><b>src/ReadModel/Messages.js</b></summary>
+
 ```javascript
 const { ReadModel } = require('ddd-js')
 
@@ -84,9 +92,11 @@ class Messages extends ReadModel {
   get messages () { return this.messages }
 }
 ```
+</details>
 
-### Wiring Things Together
-**src/app.js**
+<details>
+<summary><b>src/app.js</b></summary>
+
 ```javascript
 const bunyan = require('bunyan')
 const { Runner } = require('ddd-js')
@@ -99,12 +109,14 @@ Runner.createWithExpress(logger)
   .attachReadModel('/messages', Messages, 'messages')
   .replayHistory().then(runner => runner.startServer(8000))
 ```
+</details>
 
-### Usage
 Run `node src/app.js` - There's your API! You can now `POST` commands to `http://localhost:8000/command` and `GET` messages from
 `http://localhost:8000/messages`.
 
-Example:
+<details>
+<summary>Command Example:</summary>
+
 ```http request
 POST /command
 Host: localhost:8000
@@ -112,3 +124,4 @@ Content-Type: application/json
 
 {"name":"Message.sendMessage","time":"2019-12-08 16:06:37","payload":{"author":"Bob","chatText":"Hey, has anyone seen Jack recently!?"}}
 ```
+</details>
