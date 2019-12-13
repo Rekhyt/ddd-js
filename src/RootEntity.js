@@ -17,6 +17,10 @@ class RootEntity {
     this._eventHandlerFunctions = {}
   }
 
+  // istanbul ignore next
+  /**
+   * @abstract
+   */
   setup () {}
 
   /**

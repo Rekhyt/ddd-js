@@ -20,6 +20,10 @@ class Saga {
     this._runningSagas = {}
   }
 
+  // istanbul ignore next
+  /**
+   * @abstract
+   */
   setup () {}
 
   /**
