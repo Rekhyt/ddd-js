@@ -13,9 +13,10 @@ class EventStoreJsonFile {
 
     this._path = path
     this._intervalTime = saveInterval
-    this._content = fileContents ? JSON.parse(fileContents) : { events: [] }
+    this._content = fileContents ? JSON.parse(fileContents.toString()) : { events: [] }
     this._interval = setInterval(() => this.saveFile(), this._intervalTime)
 
+    // istanbul ignore next
     process.on('SIGINT', () => {
       this.stopSaving()
       this.saveFile()
