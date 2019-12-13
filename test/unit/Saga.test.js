@@ -10,7 +10,9 @@ const uuid = require('uuid/v4')
 
 const Saga = require('../../src/Saga')
 
-const Impl = class extends Saga {}
+const Impl = class extends Saga {
+  setup () {}
+}
 
 describe('Saga', () => {
   let subjectUnderTest

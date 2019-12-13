@@ -4,7 +4,9 @@ chai.should()
 
 const RootEntity = require('../../src/RootEntity')
 
-const Impl = class extends RootEntity {}
+const Impl = class extends RootEntity {
+  setup () {}
+}
 
 describe('RootEntity', () => {
   let subjectUnderTest
@@ -14,9 +16,9 @@ describe('RootEntity', () => {
 
   beforeEach(() => {
     logger = {
-      trace: (...args) => {},
-      debug: (...args) => {},
-      info: (...args) => {},
+      trace: () => {},
+      debug: () => {},
+      info: () => {},
       warn: (...args) => console.log(args),
       error: (...args) => console.log(args)
     }

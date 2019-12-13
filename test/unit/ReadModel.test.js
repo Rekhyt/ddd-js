@@ -4,7 +4,9 @@ chai.should()
 
 const ReadModel = require('../../src/ReadModel')
 
-const Impl = class extends ReadModel {}
+const Impl = class extends ReadModel {
+  setup () {}
+}
 
 describe('ReadModel', () => {
   let subjectUnderTest
@@ -13,9 +15,9 @@ describe('ReadModel', () => {
 
   beforeEach(() => {
     logger = {
-      trace: (...args) => {},
-      debug: (...args) => {},
-      info: (...args) => {},
+      trace: () => {},
+      debug: () => {},
+      info: () => {},
       warn: (...args) => console.log(args),
       error: (...args) => console.log(args)
     }
