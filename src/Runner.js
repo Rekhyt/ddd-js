@@ -129,19 +129,31 @@ class Runner {
         if (err instanceof ValidationError) {
           logSubject = { message: err.message, invalidFields: err.invalidFields }
           errorResponse.invalidFields = err.invalidFields
+          status = 400
         }
 
         if (err instanceof SagaError) {
           const errors = err.errors.map(e => {
             const baseError = { entity: e.entityName, message: e.error.message }
 
-            if (e.error instanceof ValidationError) return { ...baseError, invalidFields: e.error.invalidFields }
+            if (e.error instanceof ValidationError) {
+              return { ...baseError, invalidFields: e.error.invalidFields }
+            }
 
             return baseError
           })
 
           logSubject = { message: err.message, errors }
           errorResponse.validationErrors = errors
+
+          // if all errors are 400 errors, make the status 400
+          if (errors.every(e => (
+            e instanceof InvalidArgumentError ||
+            e instanceof InvalidTypeError ||
+            e instanceof ValidationError
+          ))) {
+            status = 400
+          }
         }
 
         this._logger.error(logSubject)
