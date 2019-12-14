@@ -40,7 +40,7 @@ class Runner {
    * * express - an express server giving access to command bus and read models, running on APP_PORT or port 8000
    *
    * @param {Logger} logger
-   * @param {string} eventStorePath The path where the event store
+   * @param {string} eventStorePath Path to the JSON file in which events will be stored
    */
   static createWithExpress (logger, eventStorePath) {
     const eventDispatcher = new EventDispatcherEventEmitter(logger, new EventStoreJsonFile(eventStorePath))

@@ -7,6 +7,8 @@
 
 Basic / boilerplate JS classes &amp; functions.
 
+**We're still on alpha here, APIs may change any time.**
+
 ## Quick Start
 The example application will be a small chat that allows sending messages under an alias. Implementation consists of:
 * **value objects** for validation of the author's name and the chat text
@@ -102,7 +104,7 @@ const Message = require('./Entities/Message') // see Root Entity
 const Messages = require('./ReadModels/Messages') // see Read Model
 const logger = bunyan.createLogger({ name: 'chat' })
 
-Runner.createWithExpress(logger)
+Runner.createWithExpress(logger, '../eventstore.json')
   .attachRootEntity(Message)
   .attachReadModel('/messages', Messages, 'messages')
   .replayHistory().then(runner => runner.startServer(8000))
