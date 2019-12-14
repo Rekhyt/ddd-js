@@ -158,7 +158,7 @@ class Runner {
 
   _setupReadModelRoute (readModel) {
     this._server.get(readModel.route, async (req, res) => {
-      res.json(readModel.instance[readModel.getter])
+      res.json(await readModel.instance[readModel.getter])
     })
   }
 }
