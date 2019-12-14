@@ -37,7 +37,8 @@ class CommandDispatcherLocal {
       return
     }
 
-    await this._eventDispatcher.publishMany(await this._subscriptions[command.name].execute(command))
+    this._eventDispatcher.publishMany(await this._subscriptions[command.name].execute(command))
+      .catch(err => this._logger.error(err))
   }
 }
 
