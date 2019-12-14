@@ -22,10 +22,6 @@ class Runner {
     this._eventDispatcher = eventDispatcher
     this._logger = logger
 
-    if (!server) {
-
-    }
-
     this._server = server
 
     this._rootEntities = []
