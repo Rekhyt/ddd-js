@@ -1,4 +1,4 @@
-const assert = require('assert')
+const sinon = require('sinon')
 
 const CommandDispatcherLocal = require('../../src/CommandDispatcherLocal')
 
@@ -15,9 +15,9 @@ describe('CommandDispatcherLocal', () => {
     }
 
     logger = {
-      trace: (...args) => {},
-      debug: (...args) => {},
-      info: (...args) => {},
+      trace: () => {},
+      debug: () => {},
+      info: () => {},
       warn: (...args) => console.log(args),
       error: (...args) => console.log(args)
     }
@@ -27,93 +27,81 @@ describe('CommandDispatcherLocal', () => {
 
   describe('subscribe', () => {
     it('should log an error if two handlers are assigned to a command', () => {
-      let loggerCallCount = 0
-
-      logger.error = () => {
-        loggerCallCount++
-      }
+      logger.error = sinon.stub()
 
       subjectUnderTest.subscribe('command1', {})
       subjectUnderTest.subscribe('command1', {})
 
-      assert.strictEqual(loggerCallCount, 1)
+      sinon.assert.calledOnce(logger.error)
     })
   })
 
   describe('dispatch', () => {
     it('should dispatch a given command to its subscribed handler', async () => {
-      let handlerCallCount = 0
-
-      const handler = {
-        execute: () => {
-          handlerCallCount++
-          return []
-        }
-      }
+      const handler = { execute: sinon.stub().resolves([]) }
 
       subjectUnderTest.subscribe('command', handler)
       await subjectUnderTest.dispatch({ name: 'command' })
 
-      assert.strictEqual(handlerCallCount, 1)
+      sinon.assert.calledOnce(handler.execute)
+      sinon.assert.calledWithExactly(handler.execute, { name: 'command' })
     })
 
     it('should publish events resulting from a command', async () => {
-      let publishManyCallCount = 0
-
-      const handler = {
-        execute: () => {
-          return [{ eventNo: 1 }, { eventNo: 2 }]
-        }
-      }
-
-      eventDispatcher.publishMany = async events => publishManyCallCount++
+      const handler = { execute: sinon.stub().resolves([{ eventNo: 1 }, { eventNo: 2 }]) }
+      eventDispatcher.publishMany = sinon.stub().resolves()
 
       subjectUnderTest.subscribe('command', handler)
       await subjectUnderTest.dispatch({ name: 'command' })
 
-      assert.strictEqual(publishManyCallCount, 1)
+      sinon.assert.calledOnce(handler.execute)
+      sinon.assert.calledWithExactly(handler.execute, { name: 'command' })
+
+      sinon.assert.calledOnce(eventDispatcher.publishMany)
+      sinon.assert.calledWithExactly(eventDispatcher.publishMany, [{ eventNo: 1 }, { eventNo: 2 }])
     })
 
-    it('should dispatch to the former handler if two handlers are subscribed to a command', () => {
-      let handler1CallCount = 0
-      let handler2CallCount = 0
-
-      logger.error = () => { /* do not log to console, it's expected */
-      }
-
-      const handler1 = {
-        execute: () => {
-          handler1CallCount++
-          return []
-        }
-      }
-
-      const handler2 = {
-        execute: () => {
-          handler2CallCount++
-          return []
-        }
-      }
+    it('should dispatch to the former handler and log an error if two are subscribed', async () => {
+      logger.error = sinon.stub() /* do not log to console, it's expected */
+      const handler1 = { execute: sinon.stub().resolves([]) }
+      const handler2 = { execute: sinon.stub().resolves([]) }
 
       subjectUnderTest.subscribe('command', handler1)
       subjectUnderTest.subscribe('command', handler2)
 
-      subjectUnderTest.dispatch({ name: 'command' })
+      await subjectUnderTest.dispatch({ name: 'command' })
 
-      assert.strictEqual(handler1CallCount, 1)
-      assert.strictEqual(handler2CallCount, 0)
+      sinon.assert.calledOnce(logger.error)
+
+      sinon.assert.calledOnce(handler1.execute)
+      sinon.assert.calledWithExactly(handler1.execute, { name: 'command' })
+
+      sinon.assert.notCalled(handler2.execute)
     })
 
-    it('should log an error if no handler is subscribed for an incoming command', () => {
-      let loggerCallCount = 0
+    it('should log an error if no handler is subscribed for an incoming command', async () => {
+      logger.error = sinon.stub()
+      eventDispatcher.publishMany = sinon.stub()
 
-      logger.error = () => {
-        loggerCallCount++
-      }
+      await subjectUnderTest.dispatch({ name: 'command' })
 
-      subjectUnderTest.dispatch({ name: 'command' })
+      sinon.assert.calledOnce(logger.error)
+      sinon.assert.notCalled(eventDispatcher.publishMany)
+    })
 
-      assert.strictEqual(loggerCallCount, 1)
+    it('should log an error if the publishing the resulting events fails', async () => {
+      const expectedError = new Error('Error punlishing events.')
+      logger.error = sinon.stub()
+      eventDispatcher.publishMany = sinon.stub().rejects(expectedError)
+      const handler = { execute: sinon.stub().resolves([{ eventName: 'event1' }]) }
+
+      subjectUnderTest.subscribe('command', handler)
+      await subjectUnderTest.dispatch({ name: 'command' })
+
+      sinon.assert.calledOnce(handler.execute)
+      sinon.assert.calledOnce(eventDispatcher.publishMany)
+      sinon.assert.calledOnce(logger.error)
+      sinon.assert.calledWithExactly(logger.error, expectedError)
     })
   })
 })
