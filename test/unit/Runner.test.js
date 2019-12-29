@@ -1,19 +1,29 @@
 const sinon = require('sinon')
+const proxyquire = require('proxyquire')
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 
 chai.use(chaiAsPromised)
 chai.should()
 
-const Runner = require('../../src/Runner')
+const express = require('express')
 const RootEntity = require('../../src/RootEntity')
 const Saga = require('../../src/Saga')
+
 const ReadModel = require('../../src/ReadModel')
+const CommandDispatcherLocal = require('../../src/CommandDispatcherLocal')
+const EventDispatcherEventEmitter = require('../../src/EventDispatcherEventEmitter')
+const EventStoreJsonFile = require('../../src/EventStoreJsonFile')
 
 const InvalidArgumentError = require('../../src/GenericErrors/InvalidArgumentError')
 const InvalidTypeError = require('../../src/GenericErrors/InvalidTypeError')
 const ValidationError = require('../../src/GenericErrors/ValidationError')
 const SagaError = require('../../src/GenericErrors/SagaError')
+
+const EventStoreJsonFileMock = { constructor: path => new EventStoreJsonFile(path) }
+const Runner = proxyquire('../../src/Runner', {
+  EventStoreJsonFile: EventStoreJsonFileMock
+})
 
 describe('Runner', () => {
   let subjectUnderTest
@@ -342,6 +352,137 @@ describe('Runner', () => {
       sinon.assert.calledWithExactly(json, {
         invalidFields,
         message: 'The following fields were invalid: emailAddress, preferredBeer'
+      })
+    })
+
+    it('should dispatch and return saga errors with code 400 if all sub-errors are client errors', async () => {
+      let commandHandler = false
+      const invalidFields = [
+        { fieldName: 'emailAddress', message: 'Not a valid email address.' },
+        { fieldName: 'preferredBeer', message: '"Radler" is not a valid value for enum "Beer".' }
+      ]
+
+      const expectedErrors = [
+        {
+          entity: 'Player',
+          message: 'Number must be greater than 0.'
+        },
+        {
+          entity: 'Player',
+          message: 'Value must be a "number", "boolean" passed instead.'
+        },
+        {
+          entity: 'Player',
+          message: 'The following fields were invalid: emailAddress, preferredBeer',
+          invalidFields
+        }
+      ]
+
+      const argumentError = new InvalidArgumentError('Number must be greater than 0.')
+      const typeError = new InvalidTypeError('number', 'boolean')
+      const validationError = new ValidationError(invalidFields)
+
+      const sagaError = new SagaError()
+      sagaError.addError('Player', argumentError)
+      sagaError.addError('Player', typeError)
+      sagaError.addError('Player', validationError)
+
+      logger.error = sinon.stub()
+      commandDispatcher.dispatch = sinon.stub().rejects(sagaError)
+      server.post = sinon.stub()
+      server.listen = sinon.stub()
+      server.post = async (route, handler) => { commandHandler = handler }
+
+      const end = sinon.stub()
+      const status = sinon.stub().returns({ end })
+      const json = sinon.stub()
+      const res = { status, json }
+
+      subjectUnderTest.startServer()
+
+      commandHandler.should.be.a('function')
+      await commandHandler({ body: { command: 'lol' } }, res)
+
+      sinon.assert.notCalled(end)
+      sinon.assert.calledOnce(commandDispatcher.dispatch)
+      sinon.assert.calledWithExactly(commandDispatcher.dispatch, { command: 'lol' })
+
+      sinon.assert.calledOnce(logger.error)
+      sinon.assert.calledWithExactly(logger.error, {
+        errors: expectedErrors,
+        message: 'Errors on entity Player'
+      })
+
+      sinon.assert.calledOnce(status)
+      sinon.assert.calledWith(status, 400)
+
+      sinon.assert.calledOnce(json)
+      sinon.assert.calledWithExactly(json, {
+        message: 'Errors on entity Player',
+        validationErrors: expectedErrors
+      })
+    })
+
+    it('should dispatch and return saga errors with code 500 if at least one sub-errors is not a client error', async () => {
+      let commandHandler = false
+
+      const expectedErrors = [
+        {
+          entity: 'Player',
+          message: 'Number must be greater than 0.'
+        },
+        {
+          entity: 'Player',
+          message: 'Value must be a "number", "boolean" passed instead.'
+        },
+        {
+          entity: 'Player',
+          message: 'some error'
+        }
+      ]
+
+      const argumentError = new InvalidArgumentError('Number must be greater than 0.')
+      const typeError = new InvalidTypeError('number', 'boolean')
+      const someError = new Error('some error')
+
+      const sagaError = new SagaError()
+      sagaError.addError('Player', argumentError)
+      sagaError.addError('Player', typeError)
+      sagaError.addError('Player', someError)
+
+      logger.error = sinon.stub()
+      commandDispatcher.dispatch = sinon.stub().rejects(sagaError)
+      server.post = sinon.stub()
+      server.listen = sinon.stub()
+      server.post = async (route, handler) => { commandHandler = handler }
+
+      const end = sinon.stub()
+      const status = sinon.stub().returns({ end })
+      const json = sinon.stub()
+      const res = { status, json }
+
+      subjectUnderTest.startServer()
+
+      commandHandler.should.be.a('function')
+      await commandHandler({ body: { command: 'lol' } }, res)
+
+      sinon.assert.notCalled(end)
+      sinon.assert.calledOnce(commandDispatcher.dispatch)
+      sinon.assert.calledWithExactly(commandDispatcher.dispatch, { command: 'lol' })
+
+      sinon.assert.calledOnce(logger.error)
+      sinon.assert.calledWithExactly(logger.error, {
+        errors: expectedErrors,
+        message: 'Errors on entity Player'
+      })
+
+      sinon.assert.calledOnce(status)
+      sinon.assert.calledWith(status, 500)
+
+      sinon.assert.calledOnce(json)
+      sinon.assert.calledWithExactly(json, {
+        message: 'Errors on entity Player',
+        validationErrors: expectedErrors
       })
     })
   })

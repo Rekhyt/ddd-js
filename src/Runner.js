@@ -30,6 +30,7 @@ class Runner {
     this._running = false
   }
 
+  // istanbul ignore next
   /**
    * Builds a default runner on an express server.
    *
@@ -147,10 +148,10 @@ class Runner {
           errorResponse.validationErrors = errors
 
           // if all errors are 400 errors, make the status 400
-          if (errors.every(e => (
-            e instanceof InvalidArgumentError ||
-            e instanceof InvalidTypeError ||
-            e instanceof ValidationError
+          if (err.errors.every(e => (
+            e.error instanceof InvalidArgumentError ||
+            e.error instanceof InvalidTypeError ||
+            e.error instanceof ValidationError
           ))) {
             status = 400
           }
