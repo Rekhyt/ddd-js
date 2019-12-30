@@ -38,14 +38,9 @@ const { Author, ChatText } = require('./ValueObjects') // see Value Objects
 
 class Message extends RootEntity {
   setup () {
-    this.messages = []
     this.registerCommand(
       'Message.sendMessage',
       command => this.sendMessage(command.payload.author, command.payload.chatText, command.time)
-    )
-    this.registerEvent(
-      'Message.messageSent',
-      event => this.messageSent(event.payload.author, event.payload.chatText, event.payload.commandTime)
     )
   }
 
@@ -57,14 +52,6 @@ class Message extends RootEntity {
 
     // if all good, return the event
     return [this.createEvent('Message.messageSent', { author, chatText, commandTime: time })]
-  }
-
-  messageSent (author, chatText, commandTime) {
-    this.messages = {
-      author: new Author(author),
-      chatText: new ChatText(chatText),
-      time: new DateTime(commandTime)
-    }
   }
 }
 
