@@ -1,3 +1,5 @@
+const OutdatedEntityError = require('./GenericErrors/OutdatedEntityError')
+
 /**
  * @implements CommandDispatcher
  */
@@ -15,8 +17,9 @@ class CommandDispatcherLocal {
   /**
    * @param {string} name
    * @param {CommandHandler} handler
+   * @param {number} retries
    */
-  subscribe (name, handler) {
+  subscribe (name, handler, retries = 5) {
     if (this._subscriptions[name]) {
       this._logger.error(
         new Error(`Handler subscribed to command "${name}" that already has a handler. Keeping former assignment.`)
@@ -24,7 +27,7 @@ class CommandDispatcherLocal {
       return
     }
 
-    this._subscriptions[name] = handler
+    this._subscriptions[name] = { handler, retries }
   }
 
   /**
@@ -32,13 +35,32 @@ class CommandDispatcherLocal {
    */
   async dispatch (command) {
     if (!this._subscriptions[command.name]) {
-      /* istanbul ignore next */
-      this._logger.error(new Error(`No handler for incoming command: ${command.name || 'no name given'}`))
-      return
+      throw new Error(`No handler for incoming command: ${command.name || 'no name given'}`)
     }
 
-    this._eventDispatcher.publishMany(await this._subscriptions[command.name].execute(command))
-      .catch(err => this._logger.error(err))
+    let error = null
+    let success = false
+    let tries = 0
+
+    do {
+      if (tries > 0) await new Promise(resolve => setTimeout(resolve, 200))
+
+      try {
+        tries++
+        const events = await this._subscriptions[command.name].handler.execute(command)
+        success = true
+
+        if (command.sagaId) events.forEach(e => (e.sagaId = command.sagaId))
+        this._eventDispatcher.publishMany(events).catch(err => this._logger.error(err))
+      } catch (err) {
+        error = err
+        if (!(err instanceof OutdatedEntityError)) throw err
+
+        this._logger.error(command, `Affected entities outdated (command=${command.name}, tries=${tries})`)
+      }
+    } while (!success && tries <= this._subscriptions[command.name].retries)
+
+    if (!success) throw error
   }
 }
 

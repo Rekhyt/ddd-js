@@ -57,7 +57,7 @@ class Saga {
 
   /**
    * @param {Command} command
-   * @returns {Event[]}
+   * @returns {Promise<Event[]>}
    */
   async execute (command) {
     if (!this._commandHandlerFunctions[command.name]) {
@@ -133,7 +133,7 @@ class Saga {
     if (!this._runningSagas[identifier]) throw new Error(`No saga found with given identifier ${identifier}.`)
     this.logger.trace('Running saga', { class: this.constructor.name, identifier })
 
-    const tasks = Object.values(this._runningSagas[identifier].tasks)
+    const tasks = this._runningSagas[identifier].tasks
     const sagaError = new SagaError()
 
     this.logger.trace('Executing tasks.', { class: this.constructor.name })
@@ -147,7 +147,7 @@ class Saga {
 
         try {
           this.logger.trace('Executing task.', { class: this.constructor.name, identifier, commandName, task })
-          await this._dispatch(task.command)
+          await this._dispatch({ ...task.command, sagaId: identifier })
           this.logger.trace('Task executed.', { class: this.constructor.name, identifier, commandName, task })
           task.status = 'done'
         } catch (err) {
@@ -167,7 +167,7 @@ class Saga {
     if (!sagaError.hasErrors()) return
 
     const rollbackCommands = []
-    for (const task of tasks) {
+    for (const task of Object.values(tasks)) {
       this.logger.trace('Checking tasks for required rollback.', { class: this.constructor.name, identifier, task })
       if (task.status !== 'done' && task.status !== 'timed out') continue
 
@@ -176,7 +176,7 @@ class Saga {
 
     try {
       this.logger.trace('Executing rollback tasks.', { class: this.constructor.name, identifier, rollbackCommands })
-      await Promise.all(rollbackCommands.map(c => this._dispatch(c)))
+      await Promise.all(rollbackCommands.map(c => this._dispatch({ ...c, sagaId: identifier })))
     } catch (err) {
       this.logger.fatal(err, 'At least one rollback command failed after at least one command of a saga failed!')
     }

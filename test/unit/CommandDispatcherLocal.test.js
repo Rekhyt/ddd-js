@@ -1,4 +1,6 @@
 const sinon = require('sinon')
+const chai = require('chai')
+chai.should()
 
 const CommandDispatcherLocal = require('../../src/CommandDispatcherLocal')
 
@@ -79,13 +81,12 @@ describe('CommandDispatcherLocal', () => {
       sinon.assert.notCalled(handler2.execute)
     })
 
-    it('should log an error if no handler is subscribed for an incoming command', async () => {
+    it('should throw an error if no handler is subscribed for an incoming command', async () => {
       logger.error = sinon.stub()
       eventDispatcher.publishMany = sinon.stub()
 
-      await subjectUnderTest.dispatch({ name: 'command' })
+      subjectUnderTest.dispatch({ name: 'command' }).should.eventually.be.rejectedWith('No handler for incoming command: command')
 
-      sinon.assert.calledOnce(logger.error)
       sinon.assert.notCalled(eventDispatcher.publishMany)
     })
 

@@ -61,7 +61,8 @@ class ReadModel {
         eventName: event.name,
         eventTime: event.time,
         eventPayload: JSON.stringify(event.payload, null, 2),
-        readModel: this.constructor.prototype
+        readModel: this.constructor.name,
+        sagaId: event.sagaId
       },
       'Going to apply an event.'
     )

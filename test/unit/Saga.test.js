@@ -216,8 +216,8 @@ describe('Saga', () => {
       await subjectUnderTest.run('id')
 
       sinon.assert.calledTwice(commandDispatcher.dispatch)
-      sinon.assert.calledWithExactly(commandDispatcher.dispatch, command1)
-      sinon.assert.calledWithExactly(commandDispatcher.dispatch, command2)
+      sinon.assert.calledWithExactly(commandDispatcher.dispatch, { ...command1, sagaId: 'id' })
+      sinon.assert.calledWithExactly(commandDispatcher.dispatch, { ...command2, sagaId: 'id' })
 
       sinon.assert.notCalled(rollbackHandler)
     })
@@ -248,11 +248,11 @@ describe('Saga', () => {
       await subjectUnderTest.run('id').should.be.rejectedWith('Errors on entities Car, Flight')
 
       sinon.assert.callCount(commandDispatcher.dispatch, 5)
-      sinon.assert.calledWithExactly(commandDispatcher.dispatch, command1)
-      sinon.assert.calledWithExactly(commandDispatcher.dispatch, command2)
-      sinon.assert.calledWithExactly(commandDispatcher.dispatch, command3)
-      sinon.assert.calledWithExactly(commandDispatcher.dispatch, rollbackCommand1)
-      sinon.assert.calledWithExactly(commandDispatcher.dispatch, rollbackCommand3)
+      sinon.assert.calledWithExactly(commandDispatcher.dispatch, { ...command1, sagaId: 'id' })
+      sinon.assert.calledWithExactly(commandDispatcher.dispatch, { ...command2, sagaId: 'id' })
+      sinon.assert.calledWithExactly(commandDispatcher.dispatch, { ...command3, sagaId: 'id' })
+      sinon.assert.calledWithExactly(commandDispatcher.dispatch, { ...rollbackCommand1, sagaId: 'id' })
+      sinon.assert.calledWithExactly(commandDispatcher.dispatch, { ...rollbackCommand3, sagaId: 'id' })
 
       sinon.assert.calledOnce(rollbackHandler1)
       sinon.assert.notCalled(rollbackHandler2)
@@ -284,10 +284,10 @@ describe('Saga', () => {
 
     await subjectUnderTest.run('id').should.be.rejectedWith('Errors on entity Car')
 
-    sinon.assert.callCount(commandDispatcher.dispatch, 3)
-    sinon.assert.calledWithExactly(commandDispatcher.dispatch, command1)
-    sinon.assert.calledWithExactly(commandDispatcher.dispatch, command2)
-    sinon.assert.calledWithExactly(commandDispatcher.dispatch, rollbackCommand1)
+    sinon.assert.calledThrice(commandDispatcher.dispatch)
+    sinon.assert.calledWithExactly(commandDispatcher.dispatch, { ...command1, sagaId: 'id' })
+    sinon.assert.calledWithExactly(commandDispatcher.dispatch, { ...command2, sagaId: 'id' })
+    sinon.assert.calledWithExactly(commandDispatcher.dispatch, { ...rollbackCommand1, sagaId: 'id' })
 
     sinon.assert.calledOnce(rollbackHandler1)
     sinon.assert.notCalled(rollbackHandler2)

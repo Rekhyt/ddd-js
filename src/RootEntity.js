@@ -81,7 +81,7 @@ class RootEntity {
 
   /**
    * @param {Command} command
-   * @returns {Event[]}
+   * @returns {Promise<Event[]>}
    */
   async execute (command) {
     if (!this._commandHandlerFunctions[command.name]) {
@@ -95,22 +95,23 @@ class RootEntity {
         commandName: command.name,
         commandTime: command.time,
         commandPayload: JSON.stringify(command.payload, null, 2),
-        entity: this.constructor.name
+        entity: this.constructor.name,
+        sagaId: command.sagaId
       },
-      'Going to execute a entity-handled command.'
+      'Going to execute an entity-handled command.'
     )
     return this._commandHandlerFunctions[command.name](command)
   }
 
   /**
    * @param {Event} event
-   * @returns {Promise<Event[]>}
+   * @returns {Promise<void>}
    */
   async apply (event) {
     if (!this._eventHandlerFunctions[event.name]) {
       /* istanbul ignore next */
       this.logger.error(new Error(`Cannot apply incoming event ${event.name || 'no name given'}.`))
-      return []
+      return
     }
 
     this.logger.debug(
@@ -118,11 +119,12 @@ class RootEntity {
         eventName: event.name,
         eventTime: event.time,
         eventPayload: JSON.stringify(event.payload, null, 2),
-        entity: this.constructor.prototype
+        entity: this.constructor.name,
+        sagaId: event.sagaId
       },
       'Going to apply an event.'
     )
-    return this._eventHandlerFunctions[event.name](event)
+    this._eventHandlerFunctions[event.name](event)
   }
 
   /**

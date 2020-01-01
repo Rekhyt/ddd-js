@@ -1,6 +1,7 @@
 declare interface Event {
     name: string
     time: string
+    sagaId?: string
     payload: Object
 }
 
@@ -18,6 +19,7 @@ declare interface EventDispatcher {
 declare interface Command {
     name: string
     time: string
+    sagaId?: string
     payload: Object
 }
 
@@ -26,7 +28,7 @@ declare interface CommandHandler {
 }
 
 declare interface CommandDispatcher {
-    subscribe(name: string, handler: CommandHandler): void
+    subscribe(name: string, handler: CommandHandler, retries?: number): void
     dispatch(command: Command): Promise<void>
 }
 
@@ -48,4 +50,15 @@ declare interface EventStore {
 declare interface InvalidValidationField {
     fieldName: string
     message: string
+}
+
+declare interface Entity {
+    readonly version: Version
+    versionUp(): void
+}
+
+declare interface Version {
+    getNextVersion(): Version
+    getValue(): number
+    toString(): string
 }

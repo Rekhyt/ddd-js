@@ -57,6 +57,7 @@ class Runner {
    */
   async replayHistory () {
     await this._eventDispatcher.replayAll()
+    this._logger.info('All events replayed')
 
     return this
   }
@@ -167,6 +168,7 @@ class Runner {
 
     this._running = true
     this._server.listen(port)
+    this._logger.info(`Listening on port ${port} . . .`)
   }
 
   _setupReadModelRoute (readModel) {
