@@ -87,7 +87,7 @@ describe('CommandDispatcherLocal', () => {
       logger.error = sinon.stub()
       eventDispatcher.publishMany = sinon.stub()
 
-      subjectUnderTest.dispatch({ name: 'command' }).should.eventually.be.rejectedWith('No handler for incoming command: command')
+      await subjectUnderTest.dispatch({ name: 'command' }).should.eventually.be.rejectedWith('No handler for incoming command: command')
 
       sinon.assert.notCalled(eventDispatcher.publishMany)
     })
