@@ -1,5 +1,7 @@
 const sinon = require('sinon')
 const chai = require('chai')
+
+chai.use(require('chai-as-promised'))
 chai.should()
 
 const CommandDispatcherLocal = require('../../src/CommandDispatcherLocal')

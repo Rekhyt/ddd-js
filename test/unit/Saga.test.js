@@ -1,9 +1,8 @@
 const assert = require('assert')
 const chai = require('chai')
-const chaiAsPromised = require('chai-as-promised')
 const sinon = require('sinon')
 
-chai.use(chaiAsPromised)
+chai.use(require('chai-as-promised'))
 chai.should()
 
 const uuid = require('uuid/v4')
