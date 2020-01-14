@@ -30,7 +30,15 @@ class IntegerVersion {
    * @returns {string}
    */
   toString () {
-    return `${this._value}`
+    return `v${this._value}`
+  }
+
+  /**
+   * @param {IntegerVersion} version
+   * @returns {boolean}
+   */
+  equals (version) {
+    return this._value === version.getValue()
   }
 }
 
