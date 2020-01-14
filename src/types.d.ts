@@ -52,7 +52,7 @@ declare interface InvalidValidationField {
     message: string
 }
 
-declare interface Entity {
+declare interface VersionableEntity {
     readonly version: Version
     versionUp(): void
 }

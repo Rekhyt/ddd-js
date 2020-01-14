@@ -1,7 +1,7 @@
 const IntegerVersion = require('./ValueObject/IntegerVersion')
 
 /**
- * @implements {Entity}
+ * @implements {VersionableEntity}
  * @abstract
  */
 class BaseEntity {
