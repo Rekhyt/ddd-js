@@ -146,7 +146,7 @@ class Runner {
           })
 
           logSubject = { message: err.message, errors }
-          errorResponse.validationErrors = errors
+          errorResponse.sagaErrors = errors
 
           // if all errors are 400 errors, make the status 400
           if (err.errors.every(e => (

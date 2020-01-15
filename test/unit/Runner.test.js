@@ -419,7 +419,7 @@ describe('Runner', () => {
       sinon.assert.calledOnce(json)
       sinon.assert.calledWithExactly(json, {
         message: 'Errors on entity Player',
-        validationErrors: expectedErrors
+        sagaErrors: expectedErrors
       })
     })
 
@@ -482,7 +482,7 @@ describe('Runner', () => {
       sinon.assert.calledOnce(json)
       sinon.assert.calledWithExactly(json, {
         message: 'Errors on entity Player',
-        validationErrors: expectedErrors
+        sagaErrors: expectedErrors
       })
     })
   })
