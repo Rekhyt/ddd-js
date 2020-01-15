@@ -38,29 +38,47 @@ class CommandDispatcherLocal {
       throw new Error(`No handler for incoming command: ${command.name || 'no name given'}`)
     }
 
-    let error = null
+    const commandHandler = this._subscriptions[command.name].handler
+    const affectedEntities = await commandHandler.getAffectedEntities(command)
+
     let success = false
     let tries = 0
 
     do {
       if (tries > 0) await new Promise(resolve => setTimeout(resolve, 200))
 
-      try {
-        tries++
-        const events = await this._subscriptions[command.name].handler.execute(command)
-        success = true
+      // store the current versions of the affected entities
+      const versionsByEntities = affectedEntities.reduce((a, e) => {
+        a[e.constructor.name] = e.version
+        return a
+      }, {})
 
-        if (command.sagaId) events.forEach(e => (e.sagaId = command.sagaId))
+      // count up the tries and execute the command
+      tries++
+      const events = await commandHandler.execute(command)
+
+      // transfer saga ID from command to events for log tracing
+      if (command.sagaId) events.forEach(e => (e.sagaId = command.sagaId))
+
+      // collect affected entities that meanwhile have changed
+      const outdatedAffectedEntities = affectedEntities.filter(e => !versionsByEntities[e.constructor.name].equals(e.version))
+
+      // if none changed, increment entity versions, emit resulting events and exit the loop
+      if (outdatedAffectedEntities.length === 0) {
+        affectedEntities.forEach(e => e.versionUp())
         this._eventDispatcher.publishMany(events).catch(err => this._logger.error(err))
-      } catch (err) {
-        error = err
-        if (!(err instanceof OutdatedEntityError)) throw err
-
-        this._logger.error(command, `Affected entities outdated (command=${command.name}, tries=${tries})`)
+        success = true
+        break
       }
-    } while (!success && tries <= this._subscriptions[command.name].retries)
 
-    if (!success) throw error
+      // log affected entities that are outdated, start over
+      this._logger.error(
+        { command, tries, entities: affectedEntities.map(e => e.constructor.name) },
+        `Affected entities outdated`
+      )
+    } while (tries <= this._subscriptions[command.name].retries)
+
+    if (!success) throw new OutdatedEntityError('Affected entities outdated')
   }
 }
 

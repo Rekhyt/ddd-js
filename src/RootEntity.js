@@ -13,6 +13,7 @@ class RootEntity {
     this.logger = logger
     this._commandDispatcher = commandDispatcher
     this._commandHandlerFunctions = {}
+    this._affectedEntitiesFunctions = {}
     this._eventDispatcher = eventDispatcher
     this._eventHandlerFunctions = {}
   }
@@ -22,6 +23,14 @@ class RootEntity {
    * @abstract
    */
   setup () {}
+
+  /**
+   * @param {Command} command
+   * @returns {Promise<VersionableEntity[]>}
+   */
+  async getAffectedEntities (command) {
+    return this._affectedEntitiesFunctions[command.name](command)
+  }
 
   /**
    * @returns {object} with event names as keys and handler functions as values
@@ -39,9 +48,10 @@ class RootEntity {
 
   /**
    * @param {string} name
-   * @param {Function} func
+   * @param {Function} handlerFunc
+   * @param {Function} [affectedEntitiesFunc]
    */
-  registerCommand (name, func) {
+  registerCommand (name, handlerFunc, affectedEntitiesFunc = undefined) {
     if (this._commandHandlerFunctions[name]) {
       this.logger.error(
         new Error(`Two functions registered as command handler for ${name}. Keeping the former.`)
@@ -49,13 +59,14 @@ class RootEntity {
       return
     }
 
-    this._commandHandlerFunctions[name] = func
+    this._commandHandlerFunctions[name] = handlerFunc
     this._commandDispatcher.subscribe(name, this)
+    this._affectedEntitiesFunctions[name] = affectedEntitiesFunc || (() => [])
 
     this.logger.info({
       commandName: name,
       entity: this.constructor.name,
-      functionName: func.toString()
+      functionName: handlerFunc.toString()
     }, 'Registered entity handler function for a command.')
   }
 

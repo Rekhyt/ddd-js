@@ -24,6 +24,7 @@ declare interface Command {
 }
 
 declare interface CommandHandler {
+    getAffectedEntities(command: Command): Promise<VersionableEntity[]>
     execute(command: Command): Promise<Event[]>
 }
 

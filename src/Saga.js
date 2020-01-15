@@ -27,6 +27,14 @@ class Saga {
   setup () {}
 
   /**
+   * @param {Command} command
+   * @returns {Promise<VersionableEntity[]>}
+   */
+  async getAffectedEntities (command) {
+    return []
+  }
+
+  /**
    * @returns {object} with command names as keys and handler functions as values
    */
   get commandHandlerFunctions () {
