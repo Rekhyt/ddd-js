@@ -6,6 +6,7 @@ chai.should()
 
 const CommandDispatcherLocal = require('../../src/CommandDispatcherLocal')
 const OutdatedEntityError = require('../../src/GenericErrors/OutdatedEntityError')
+const IntegerVersion = require('../../src/ValueObject/IntegerVersion')
 
 describe('CommandDispatcherLocal', () => {
   let subjectUnderTest
@@ -173,13 +174,19 @@ describe('CommandDispatcherLocal', () => {
       sinon.assert.calledWithExactly(logger.error, expectedError)
     })
 
-    it.skip('should log an error and retry if the entity has changed during command processing', async () => {
-      const expectedError = new OutdatedEntityError('Affected entities outdated (command=command, tries=1)')
+    it('should log an error and retry if the entity has changed during command processing', async () => {
+      const Entity = class {
+        constructor () { this.version = new IntegerVersion(1) }
+        versionUp () { this.version = this.version.getNextVersion() }
+      }
+      const entity = new Entity()
+
       logger.error = sinon.stub()
       eventDispatcher.publishMany = sinon.stub().resolves()
       const handler = {
+        getAffectedEntities: sinon.stub().resolves([entity]),
         execute: sinon.stub()
-          .onFirstCall().rejects(expectedError)
+          .onFirstCall().callsFake(() => entity.versionUp()).resolves([{ eventName: 'event1' }])
           .onSecondCall().resolves([{ eventName: 'event1' }])
       }
 
@@ -189,30 +196,47 @@ describe('CommandDispatcherLocal', () => {
       sinon.assert.calledTwice(handler.execute)
       sinon.assert.calledOnce(eventDispatcher.publishMany)
       sinon.assert.calledOnce(logger.error)
-      sinon.assert.calledWithExactly(logger.error, { name: 'command' }, expectedError.message)
+      sinon.assert.calledWithExactly(logger.error,
+        { command: { name: 'command' }, entities: ['Entity'], tries: 1 },
+        'Affected entities outdated'
+      )
     })
 
-    it.skip('should retry 5 times, then give up if the entity has changed during command processing', async () => {
-      const expectedError = new OutdatedEntityError('Affected entities outdated (command=command, tries=1)')
+    it('should retry 5 times, then give up if the entity has changed during command processing', async () => {
+      const Entity = class {
+        constructor () { this.version = new IntegerVersion(1) }
+        versionUp () { this.version = this.version.getNextVersion() }
+      }
+      const entity = new Entity()
+
+      const expectedErrorMessage = 'Affected entities outdated'
       logger.error = sinon.stub()
       eventDispatcher.publishMany = sinon.stub().resolves()
       const handler = {
+        getAffectedEntities: sinon.stub().resolves([entity]),
         execute: sinon.stub()
-          .onCall(0).rejects(expectedError)
-          .onCall(1).rejects(expectedError)
-          .onCall(2).rejects(expectedError)
-          .onCall(3).rejects(expectedError)
-          .onCall(4).rejects(expectedError)
-          .onCall(5).rejects(expectedError)
+          .onCall(0).callsFake(() => entity.versionUp()).resolves()
+          .onCall(1).callsFake(() => entity.versionUp()).resolves()
+          .onCall(2).callsFake(() => entity.versionUp()).resolves()
+          .onCall(3).callsFake(() => entity.versionUp()).resolves()
+          .onCall(4).callsFake(() => entity.versionUp()).resolves()
+          .onCall(5).callsFake(() => entity.versionUp()).resolves()
       }
 
-      subjectUnderTest.subscribe('command', handler)
-      await subjectUnderTest.dispatch({ name: 'command' }).should.eventually.be.rejectedWith(expectedError)
+      subjectUnderTest.subscribe('command', handler, 5)
+      await subjectUnderTest.dispatch({ name: 'command' })
+        .should.eventually.be.rejectedWith(OutdatedEntityError, 'Affected entities changed during processing: Entity')
 
       sinon.assert.callCount(handler.execute, 6)
       sinon.assert.notCalled(eventDispatcher.publishMany)
+
       sinon.assert.callCount(logger.error, 6)
-      sinon.assert.calledWithExactly(logger.error, { name: 'command' }, expectedError.message)
+      sinon.assert.calledWithExactly(logger.error, { command: { name: 'command' }, entities: ['Entity'], tries: 1 }, expectedErrorMessage)
+      sinon.assert.calledWithExactly(logger.error, { command: { name: 'command' }, entities: ['Entity'], tries: 2 }, expectedErrorMessage)
+      sinon.assert.calledWithExactly(logger.error, { command: { name: 'command' }, entities: ['Entity'], tries: 3 }, expectedErrorMessage)
+      sinon.assert.calledWithExactly(logger.error, { command: { name: 'command' }, entities: ['Entity'], tries: 4 }, expectedErrorMessage)
+      sinon.assert.calledWithExactly(logger.error, { command: { name: 'command' }, entities: ['Entity'], tries: 5 }, expectedErrorMessage)
+      sinon.assert.calledWithExactly(logger.error, { command: { name: 'command' }, entities: ['Entity'], tries: 6 }, expectedErrorMessage)
     })
   })
 })

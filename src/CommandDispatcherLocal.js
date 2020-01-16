@@ -43,6 +43,7 @@ class CommandDispatcherLocal {
 
     let success = false
     let tries = 0
+    let outdatedAffectedEntities = []
 
     do {
       if (tries > 0) await new Promise(resolve => setTimeout(resolve, 200))
@@ -61,7 +62,7 @@ class CommandDispatcherLocal {
       if (command.sagaId) events.forEach(e => (e.sagaId = command.sagaId))
 
       // collect affected entities that meanwhile have changed
-      const outdatedAffectedEntities = affectedEntities.filter(e => !versionsByEntities[e.constructor.name].equals(e.version))
+      outdatedAffectedEntities = affectedEntities.filter(e => !versionsByEntities[e.constructor.name].equals(e.version))
 
       // if none changed, increment entity versions, emit resulting events and exit the loop
       if (outdatedAffectedEntities.length === 0) {
@@ -78,7 +79,7 @@ class CommandDispatcherLocal {
       )
     } while (tries <= this._subscriptions[command.name].retries)
 
-    if (!success) throw new OutdatedEntityError('Affected entities outdated')
+    if (!success) throw new OutdatedEntityError(outdatedAffectedEntities)
   }
 }
 

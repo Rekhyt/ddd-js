@@ -6,14 +6,14 @@ const IntegerVersion = require('./ValueObject/IntegerVersion')
  */
 class BaseEntity {
   /**
-   * @param {Version} version
+   * @param {IntegerVersion} version
    */
   constructor (version = null) {
     this._version = version || new IntegerVersion(0)
   }
 
   /**
-   * @returns {Version}
+   * @returns {IntegerVersion}
    */
   get version () {
     return this._version
