@@ -1,5 +1,7 @@
+const sinon = require('sinon')
 const assert = require('assert')
 const chai = require('chai')
+chai.use(require('chai-as-promised'))
 chai.should()
 
 const RootEntity = require('../../src/RootEntity')
@@ -84,6 +86,21 @@ describe('RootEntity', () => {
       }
 
       assert.deepStrictEqual(subjectUnderTest.commandHandlerFunctions, expectedCommands)
+    })
+  })
+
+  describe('getAffectedEntities', () => {
+    it('should register a handler that returns an empty array if none was passed', async () => {
+      subjectUnderTest.registerCommand('command1', () => {})
+      await subjectUnderTest.getAffectedEntities({ name: 'command1' }).should.eventually.deep.equal([])
+    })
+
+    it('should call the registered handler function and return its result', async () => {
+      const affectedEntityHandler = sinon.stub().resolves('some result')
+      subjectUnderTest.registerCommand('command1', () => {}, affectedEntityHandler)
+
+      await subjectUnderTest.getAffectedEntities({ name: 'command1' }).should.eventually.equal('some result')
+      sinon.assert.calledOnce(affectedEntityHandler)
     })
   })
 
