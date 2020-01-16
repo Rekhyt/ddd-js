@@ -100,6 +100,13 @@ describe('Saga', () => {
     })
   })
 
+  describe('getAffectedEntities', () => {
+    it('should return an empty array', async () => {
+      subjectUnderTest.registerCommand('command1', () => {})
+      await subjectUnderTest.getAffectedEntities().should.eventually.deep.equal([])
+    })
+  })
+
   describe('execute', () => {
     it('should call the command handler for a registered command when incoming', async () => {
       const expectedCommand = { name: 'command1' }
