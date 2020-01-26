@@ -112,3 +112,41 @@ Content-Type: application/json
 {"name":"Message.sendMessage","time":"2019-12-08 16:06:37","payload":{"author":"Bob","chatText":"Hey, has anyone seen Jack recently!?"}}
 ```
 </details>
+
+## Entity Versioning & Optimistic Lock
+The default command dispatcher supports an optimistic lock on affected entities that implement the `Versionable` interface.
+Alternatively you can base your entity on `BaseEntity` which supports versioning out of the box.
+
+When registering a command handler, you can also register a function that returns the affected entities as an array.
+
+The dispatcher will now store the current version before executing the command and check if it's still the same before
+emitting the resulting events. If it is not it will retry a defined number of times or 5 times by default.
+
+<details>
+<summary><b>Example:</b> To avoid the fuel tank of a car in our car park to be emptied below zero, we'll return the affected car
+entity in the affectedEntitiesHandler for the "removeFuel" command. The command dispatcher will take care of version
+increments, checks and retries for that command from now on.</summary>
+
+```javascript
+const { RootEntity, BaseEntity } = require('ddd-js')
+
+class Car extends BaseEntity {
+  constructor (fuelLevel) {
+    super()
+    this.fuelLevel = fuelLevel
+  }
+}
+
+class CarPool extends RootEntity {
+  setup () {
+    this.registerCommand('removeFuel',
+      (carId, liters) => {
+        if (this.cars[carId].fuelLevel - liters < 0) throw new Error('This is more than is left in the tank.')
+        return [this.createEvent('fuelRemoved', { carId, liters })]
+      },
+      command => { return [this.cars[command.payload.carId]] }
+    )
+  }
+}
+```
+</details>
