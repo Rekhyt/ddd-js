@@ -150,3 +150,49 @@ class CarPool extends RootEntity {
 }
 ```
 </details>
+
+## Sagas
+To support transactions over multiple aggregates while respecting bounded contexts a saga can be used. To do so, extend
+the Saga class, register a command that triggers it and add tasks (commands to the root entities) and their according
+rollback tasks and then let the Saga run.
+
+### Success Of A Saga
+A saga will succeed only if every task succeeded. It will then emit the events that were returned by the root entities. 
+
+### Failure Of A Saga
+A saga will fail if
+* one or more commands failed to be executed
+* one or more commands timed out
+
+It will then send "rollback" commands to every root entity that succeeded or timed out.
+
+<details>
+<summary><b>Example:</b> If someone rents a car, it should be marked unavailable. At the same time, the custmer's credit card should be
+debited. Only if both actions succeed the process is considered complete. If the car cannot be reserved the customer
+should get their money back. If the amount can't be debited the car should be freed again.</summary>
+
+```javascript
+const { Saga } = require('ddd-js')
+
+class RentCar extends Saga {
+  setup () {
+    this.registerCommand('rentCar', async command => {
+      // initialize anew Saga run
+      const id = this.provision()
+
+      this.addTask(id, { ...command, name: 'reserveCar', time: new Date().toJSON() }, 'Car', () => {
+        return { ...command, name: 'freeCar', time: new Date().toJSON() }
+      })
+
+      this.addTask(id, { ...comand, name: 'debitAmount', time: new Date().toJSON() }, 'Payment', () => {
+        return { ...command, name: 'payAmount', time: new Date().toJSON() }
+      })
+
+      await this.run(id)
+
+      return [] // a saga could return its own events after it has finished; entity events are handled internally
+    })
+  }
+}
+```
+</details>
