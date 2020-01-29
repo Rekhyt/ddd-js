@@ -177,14 +177,14 @@ const { Saga } = require('ddd-js')
 class RentCar extends Saga {
   setup () {
     this.registerCommand('rentCar', async command => {
-      // initialize anew Saga run
+      // prepare a new Saga run and get an identifier for it
       const id = this.provision()
 
       this.addTask(id, { ...command, name: 'reserveCar', time: new Date().toJSON() }, 'Car', () => {
         return { ...command, name: 'freeCar', time: new Date().toJSON() }
       })
 
-      this.addTask(id, { ...comand, name: 'debitAmount', time: new Date().toJSON() }, 'Payment', () => {
+      this.addTask(id, { ...command, name: 'debitAmount', time: new Date().toJSON() }, 'Payment', () => {
         return { ...command, name: 'payAmount', time: new Date().toJSON() }
       })
 
