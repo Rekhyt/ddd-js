@@ -30,6 +30,13 @@ class Runner {
     this._running = false
   }
 
+  /**
+   * @return {Express}
+   */
+  get server () {
+    return this._server
+  }
+
   // istanbul ignore next
   /**
    * Builds a default runner on an express server.
