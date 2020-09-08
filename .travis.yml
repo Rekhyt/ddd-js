@@ -8,3 +8,10 @@ node_js:
 script:
   - npm audit
   - if [[ ${TRAVIS_NODE_VERSION:0:1} == "8" ]]; then npm run coveralls; else npm test; fi
+
+deploy:
+  provider: npm
+  email: ${NPM_USER}
+  api_key: ${NPM_KEY}
+  on:
+    tags: true
