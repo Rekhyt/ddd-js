@@ -16,7 +16,7 @@ The example application will be a small chat that allows sending messages under 
 * a **read model** keeping an API representation of all messages sent
 * an **API** that takes commands and gives access to the read model
 
-<details>
+<details open>
 <summary><b>src/ValueObjects.js</b></summary>
 
 ```javascript
@@ -74,10 +74,12 @@ class Messages extends ReadModel {
     )
   }
 
-  messageSent (author, chatText, commandTime) { this.messages = { author, chatText, time: commandTime } }
+  messageSent (author, chatText, commandTime) { this.messages.push({ author, chatText, time: commandTime }) }
 
   get messages () { return this.messages }
 }
+
+module.exports = Messages
 ```
 </details>
 
@@ -114,18 +116,15 @@ Content-Type: application/json
 </details>
 
 ## Entity Versioning & Optimistic Lock
-The default command dispatcher supports an optimistic lock on affected entities that implement the `Versionable` interface.
-Alternatively you can base your entity on `BaseEntity` which supports versioning out of the box.
+To utilize optmistic lock functionality, base your entity class on `BaseEntity` and register a function that returns
+all entities that will be affected by a command.
 
-When registering a command handler, you can also register a function that returns the affected entities as an array.
-
-The dispatcher will now store the current version before executing the command and check if it's still the same before
-emitting the resulting events. If it is not it will retry a defined number of times or 5 times by default.
+The `CommandDispatcher` will now monitor entity versions and block sending events if versions become inconsistent.
 
 <details>
-<summary><b>Example:</b> To avoid the fuel tank of a car in our car park to be emptied below zero, we'll return the affected car
-entity in the affectedEntitiesHandler for the "removeFuel" command. The command dispatcher will take care of version
-increments, checks and retries for that command from now on.</summary>
+<summary><b>Example:</b> To assure that the fuel tank of a car in our car park cannot be stored with a valie below zero,
+we'll return the affected car entity in the affectedEntitiesHandler for the `removeFuel` command.
+</summary>
 
 ```javascript
 const { RootEntity, BaseEntity } = require('ddd-js')
@@ -138,14 +137,19 @@ class Car extends BaseEntity {
 }
 
 class CarPool extends RootEntity {
+  constructor () { this.cars = {} }
+
   setup () {
-    this.registerCommand('removeFuel',
-      (carId, liters) => {
-        if (this.cars[carId].fuelLevel - liters < 0) throw new Error('This is more than is left in the tank.')
-        return [this.createEvent('fuelRemoved', { carId, liters })]
-      },
-      command => { return [this.cars[command.payload.carId]] }
-    )
+    this.registerCommand(
+    'removeFuel',                                             // command name
+    command => this.removeFuel(carId, liters)),               // command handler function
+    command => { return [this.cars[command.payload.carId]] }, // function returning affected entities per command
+    5                                                         // number of retries for optimistic lock until giving up
+  }
+
+  removeFuel (carId, liters) {
+    if (this.cars[carId].fuelLevel - liters < 0) throw new Error('This is more than is left in the tank.')
+    return [this.createEvent('fuelRemoved', { carId, liters })]
   }
 }
 ```
@@ -153,8 +157,44 @@ class CarPool extends RootEntity {
 
 ## Sagas
 To support transactions over multiple aggregates while respecting bounded contexts a saga can be used. To do so, extend
-the Saga class, register a command that triggers it and add tasks (commands to the root entities) and their according
-rollback tasks and then let the Saga run.
+the Saga class, register a command that triggers it and add tasks and their according rollback tasks and then let the
+Saga run.
+
+<details>
+<summary><b>Example:</b> If someone rents a car, it should be marked unavailable. At the same time, the customer's
+credit card should be debited. Only if both actions succeed the process is considered complete.
+If the car cannot be reserved the customer should get their money back. If the amount can't be debited the car should be
+freed again.</summary>
+
+```javascript
+const { Saga } = require('ddd-js')
+
+class RentCar extends Saga {
+  setup () {
+    this.registerCommand('rentCar', async command => {
+      // prepare a new run of the Saga and get an identifier for that
+      const id = this.provision()
+
+      this.addTask(
+        id, 'Car',                                                         // Saga ID and entity name
+        { ...command, name: 'reserveCar', time: new Date().toJSON() },     // command to be sent
+        () => ({ ...command, name: 'freeCar', time: new Date().toJSON() }) // roll back handler if any other task fails
+      )
+
+      this.addTask(
+        id, 'Payment',
+        { ...command, name: 'debitAmount', time: new Date().toJSON() },
+        () => ({ ...command, name: 'payAmount', time: new Date().toJSON() })
+      )
+
+      await this.run(id)
+
+      return [] // a saga could return its own events after it has finished
+    })
+  }
+}
+```
+</details>
 
 ### Success Of A Saga
 A saga will succeed only if every task succeeded. It will then emit the events that were returned by the root entities. 
@@ -165,34 +205,3 @@ A saga will fail if
 * one or more commands timed out
 
 It will then send "rollback" commands to every root entity that succeeded or timed out.
-
-<details>
-<summary><b>Example:</b> If someone rents a car, it should be marked unavailable. At the same time, the custmer's credit card should be
-debited. Only if both actions succeed the process is considered complete. If the car cannot be reserved the customer
-should get their money back. If the amount can't be debited the car should be freed again.</summary>
-
-```javascript
-const { Saga } = require('ddd-js')
-
-class RentCar extends Saga {
-  setup () {
-    this.registerCommand('rentCar', async command => {
-      // prepare a new Saga run and get an identifier for it
-      const id = this.provision()
-
-      this.addTask(id, { ...command, name: 'reserveCar', time: new Date().toJSON() }, 'Car', () => {
-        return { ...command, name: 'freeCar', time: new Date().toJSON() }
-      })
-
-      this.addTask(id, { ...command, name: 'debitAmount', time: new Date().toJSON() }, 'Payment', () => {
-        return { ...command, name: 'payAmount', time: new Date().toJSON() }
-      })
-
-      await this.run(id)
-
-      return [] // a saga could return its own events after it has finished; entity events are handled internally
-    })
-  }
-}
-```
-</details>

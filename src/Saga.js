@@ -120,12 +120,12 @@ class Saga {
 
   /**
    * @param {string} identifier
-   * @param {Command} command
    * @param {string} entity
+   * @param {Command} command
    * @param {Function} rollbackHandler
    * @param {number} timeout
    */
-  addTask (identifier, command, entity, rollbackHandler, timeout = 1000) {
+  addTask (identifier, entity, command, rollbackHandler, timeout = 1000) {
     if (!this._runningSagas[identifier]) throw new Error(`No saga found with given identifier ${identifier}.`)
 
     this._runningSagas[identifier].tasks[command.name] = { command, entity, rollbackHandler, timeout, status: 'added' }

@@ -50,8 +50,9 @@ class RootEntity {
    * @param {string} name
    * @param {Function} handlerFunc
    * @param {Function} [affectedEntitiesFunc]
+   * @param {number} [retries]
    */
-  registerCommand (name, handlerFunc, affectedEntitiesFunc = undefined) {
+  registerCommand (name, handlerFunc, affectedEntitiesFunc = undefined, retries = undefined) {
     if (this._commandHandlerFunctions[name]) {
       this.logger.error(
         new Error(`Two functions registered as command handler for ${name}. Keeping the former.`)
@@ -60,7 +61,7 @@ class RootEntity {
     }
 
     this._commandHandlerFunctions[name] = handlerFunc
-    this._commandDispatcher.subscribe(name, this)
+    this._commandDispatcher.subscribe(name, this, retries)
     this._affectedEntitiesFunctions[name] = affectedEntitiesFunc || (() => [])
 
     this.logger.info({

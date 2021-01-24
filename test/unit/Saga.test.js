@@ -183,8 +183,8 @@ describe('Saga', () => {
       subjectUnderTest.provision().should.be.a('string').that.equals('id')
       subjectUnderTest.addTask(
         'id',
-        { name: 'Hotel.bookRoom', time: 'now', payload: {} },
         'Hotel',
+        { name: 'Hotel.bookRoom', time: 'now', payload: {} },
         rollbackHandler,
         999
       )
@@ -216,8 +216,8 @@ describe('Saga', () => {
 
       subjectUnderTest.provision().should.be.a('string').that.equals('id')
 
-      subjectUnderTest.addTask('id', command1, 'Hotel', rollbackHandler)
-      subjectUnderTest.addTask('id', command2, 'Car', rollbackHandler)
+      subjectUnderTest.addTask('id', 'Hotel', command1, rollbackHandler)
+      subjectUnderTest.addTask('id', 'Car', command2, rollbackHandler)
 
       await subjectUnderTest.run('id')
 
@@ -247,9 +247,9 @@ describe('Saga', () => {
 
       subjectUnderTest.provision().should.be.a('string').that.equals('id')
 
-      subjectUnderTest.addTask('id', command1, 'Hotel', rollbackHandler1)
-      subjectUnderTest.addTask('id', command2, 'Car', rollbackHandler2)
-      subjectUnderTest.addTask('id', command3, 'Flight', rollbackHandler3, 0)
+      subjectUnderTest.addTask('id', 'Hotel', command1, rollbackHandler1)
+      subjectUnderTest.addTask('id', 'Car', command2, rollbackHandler2)
+      subjectUnderTest.addTask('id', 'Flight', command3, rollbackHandler3, 0)
 
       await subjectUnderTest.run('id').should.be.rejectedWith('Errors on entities Car, Flight')
 
@@ -285,8 +285,8 @@ describe('Saga', () => {
 
     subjectUnderTest.provision().should.be.a('string').that.equals('id')
 
-    subjectUnderTest.addTask('id', command1, 'Hotel', rollbackHandler1)
-    subjectUnderTest.addTask('id', command2, 'Car', rollbackHandler2)
+    subjectUnderTest.addTask('id', 'Hotel', command1, rollbackHandler1)
+    subjectUnderTest.addTask('id', 'Car', command2, rollbackHandler2)
 
     await subjectUnderTest.run('id').should.be.rejectedWith('Errors on entity Car')
 
