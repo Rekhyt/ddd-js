@@ -136,7 +136,7 @@ class RootEntity {
       },
       'Going to apply an event.'
     )
-    this._eventHandlerFunctions[event.name](event)
+    await this._eventHandlerFunctions[event.name](event)
   }
 
   /**
