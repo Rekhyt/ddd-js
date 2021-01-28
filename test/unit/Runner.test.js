@@ -5,14 +5,12 @@ const chaiAsPromised = require('chai-as-promised')
 
 chai.use(chaiAsPromised)
 chai.should()
+const assert = chai.assert
 
-const express = require('express')
 const RootEntity = require('../../src/RootEntity')
 const Saga = require('../../src/Saga')
 
 const ReadModel = require('../../src/ReadModel')
-const CommandDispatcherLocal = require('../../src/CommandDispatcherLocal')
-const EventDispatcherEventEmitter = require('../../src/EventDispatcherEventEmitter')
 const EventStoreJsonFile = require('../../src/EventStoreJsonFile')
 
 const InvalidArgumentError = require('../../src/GenericErrors/InvalidArgumentError')
@@ -46,6 +44,12 @@ describe('Runner', () => {
     server = {}
 
     subjectUnderTest = new Runner(commandDispatcher, eventDispatcher, logger, server)
+  })
+
+  describe('get server', () => {
+    it('should get the server', () => {
+      assert.strictEqual(subjectUnderTest.server, server)
+    })
   })
 
   describe('replayHistory', () => {
