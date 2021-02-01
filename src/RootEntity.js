@@ -1,6 +1,7 @@
 /**
  * @implements CommandHandler
  * @implements EventHandler
+ * @implements RootEntityInterface
  * @abstract
  */
 class RootEntity {

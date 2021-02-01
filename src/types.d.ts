@@ -1,4 +1,5 @@
 declare interface Event {
+    uuid: string
     name: string
     time: string
     sagaId?: string
@@ -14,6 +15,9 @@ declare interface EventDispatcher {
     publish(event: Event, save?: boolean): Promise<void>
     publishMany(events: Event[], save?: boolean): Promise<void>
     replayAll(): Promise<void>
+    lock(): void
+    unlock(): void
+    getLastProcessedEventUuid(): Promise<string>
 }
 
 declare interface Command {
@@ -31,6 +35,8 @@ declare interface CommandHandler {
 declare interface CommandDispatcher {
     subscribe(name: string, handler: CommandHandler, retries?: number): void
     dispatch(command: Command): Promise<void>
+    lock(): void
+    unlock(): void
 }
 
 declare interface Logger {
@@ -53,6 +59,10 @@ declare interface InvalidValidationField {
     message: string
 }
 
+declare interface RootEntityInterface {
+    setup(): void
+}
+
 declare interface VersionableEntity {
     readonly version: Version
     versionUp(): void
@@ -62,4 +72,13 @@ declare interface Version {
     getNextVersion(): Version
     getValue(): number
     toString(): string
+}
+
+declare interface ReadModelInterface {
+    setup(): void
+}
+
+declare interface SnapshotStore {
+    saveSnapshot(): number
+    getSnapshot(id: string): { rootEntities: RootEntityInterface[], readModels: ReadModelInterface[] }
 }

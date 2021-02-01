@@ -12,6 +12,7 @@ class CommandDispatcherLocal {
     this._eventDispatcher = eventDispatcher
     this._logger = logger
     this._subscriptions = {}
+    this._locked = false
   }
 
   /**
@@ -34,6 +35,17 @@ class CommandDispatcherLocal {
    * @param {Command} command
    */
   async dispatch (command) {
+    if (this._locked) {
+      await new Promise(resolve => {
+        const interval = setInterval(() => {
+          if (this._locked) return this._logger.info('Command dispatching locked, retrying in 1 second.')
+
+          clearInterval(interval)
+          resolve()
+        }, 1000)
+      })
+    }
+
     if (!this._subscriptions[command.name]) {
       throw new Error(`No handler for incoming command: ${command.name || 'no name given'}`)
     }
@@ -80,6 +92,14 @@ class CommandDispatcherLocal {
     } while (tries <= this._subscriptions[command.name].retries)
 
     if (!success) throw new OutdatedEntityError(outdatedAffectedEntities)
+  }
+
+  lock () {
+    this._locked = true
+  }
+
+  unlock () {
+    this._locked = false
   }
 }
 

@@ -1,3 +1,5 @@
+const uuid = require('uuid/v4')
+
 /**
  * @implements {EventDispatcher}
  */
@@ -10,6 +12,8 @@ class EventDispatcherLocal {
     this._logger = logger
     this._repository = repository
     this._subscriptions = {}
+    this._locked = false
+    this._lastEventUuid = null
   }
 
   /**
@@ -28,6 +32,20 @@ class EventDispatcherLocal {
    * @returns {Promise<void>}
    */
   async publish (event, save = true) {
+    if (this._locked) {
+      await new Promise(resolve => {
+        const interval = setInterval(() => {
+          if (this._locked) return this._logger.info('Event publishing locked, retrying in 1 second.')
+
+          clearInterval(interval)
+          resolve()
+        }, 1000)
+      })
+    }
+
+    if (!event.uuid) event.uuid = uuid()
+    this._lastEventUuid = event.uuid
+
     if (save) await this._repository.save(event)
 
     if (!this._subscriptions[event.name]) {
@@ -63,6 +81,18 @@ class EventDispatcherLocal {
       }, 'Replaying event')
       await this.publish(event, false)
     }
+  }
+
+  lock () {
+    this._locked = true
+  }
+
+  unlock () {
+    this._locked = false
+  }
+
+  getLastProcessedEventUuid () {
+    return this._lastEventUuid
   }
 }
 
