@@ -17,6 +17,7 @@ describe('EventStoreJsonFile', () => {
   afterEach(() => {
     clearInterval(subjectUnderTest._interval)
     subjectUnderTest._interval = null
+    process.removeAllListeners('SIGINT')
   })
 
   describe('construct', () => {
