@@ -96,7 +96,8 @@ const logger = bunyan.createLogger({ name: 'chat' })
 Runner.createWithExpress(logger, '../eventstore.json')
   .attachRootEntity(Message)
   .attachReadModel('/messages', Messages, 'messages')
-  .replayHistory().then(runner => runner.startServer(8000))
+  .replayHistory()
+  .then(runner => runner.startServer(8000))
 ```
 </details>
 
