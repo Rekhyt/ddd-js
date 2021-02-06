@@ -78,6 +78,10 @@ declare interface ReadModelInterface {
     setup(): void
 }
 
+declare interface SagaInterface {
+    setup(): void
+}
+
 declare interface SnapshotStore {
     saveSnapshot(): number
     getSnapshot(id: string): { rootEntities: RootEntityInterface[], readModels: ReadModelInterface[] }

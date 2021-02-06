@@ -3,6 +3,7 @@ const SagaError = require('./GenericErrors/SagaError')
 
 /**
  * @implements CommandHandler
+ * @implements SagaInterface
  * @abstract
  */
 class Saga {

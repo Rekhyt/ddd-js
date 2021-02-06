@@ -1,5 +1,6 @@
 /**
  * @implements EventHandler
+ * @implements ReadModelInterface
  * @abstract
  */
 class ReadModel {
